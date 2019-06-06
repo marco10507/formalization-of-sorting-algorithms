@@ -33,7 +33,7 @@ next
     case False
     have "sorted ys" using "local.2.prems" List.linorder_class.sorted.simps(2) by blast
     also have "sorted (insert_a x ys)" by (simp add: "local.2.hyps" False calculation)
-    moreover have "sorted (y#insert_a x ys)" by (smt "insertion-sort-tail-recursive.insert_a.elims" "local.2.prems" False calculation(2) le_cases sorted2)
+    moreover have "sorted (y#insert_a x ys)" by (smt "insertion-sort.insert_a.elims" "local.2.prems" False calculation(2) le_cases sorted2)
     then have "sorted (insert_a x (y # ys))" by (simp add: False)
     then show "sorted (insert_a x (y # ys))" by assumption
   qed
