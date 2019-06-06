@@ -1,4 +1,4 @@
-theory "insertion-sort-tail-recursive"
+theory "insertion-sort"
   imports Main "HOL-Library.Multiset"
 begin
 
