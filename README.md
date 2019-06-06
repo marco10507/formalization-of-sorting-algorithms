@@ -1,4 +1,4 @@
-# Formalization of sorting algorithms
+# Formalization of sorting algorithms in Isabelle/HOL
 - **Insertion sort**
   - Tail recursive
   - Non-tail recursive
