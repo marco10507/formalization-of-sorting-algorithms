@@ -1,9 +1,9 @@
 # Formalization of sorting algorithms
-- Insertion sort
+- **Insertion sort**
   - Tail recursive
   - Non-tail recursive
-- Selection sort
+- **Selection sort**
   - Tail recursive
   - Non-tail recursive
-- Merge sort
+- **Merge sort**
   - Tail recursive
