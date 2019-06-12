@@ -49,8 +49,7 @@ next
   qed
 qed
 
-(*important to proof this makes lemma p_7 to work, which also help to termiante the execution*)
-(*not tail-recursive*)
+(*no tail-recursive*)
 function selection_sort:: "nat list \<Rightarrow> nat list" where
 "selection_sort [] = []" |
 "selection_sort (x#xs) = (let m = Min (set(x#xs)) in m#selection_sort(remove1 m (x#xs)))"
@@ -58,17 +57,6 @@ by pat_completeness auto
 termination by (meson "termination" in_measure min_membership remove_member wf_measure)
 
 value "selection_sort [2,4,10,0,0]"
-(*
-Note that this rule (.cases) does not mention the function at all, but only describes 
-the cases used for defining selection_sort.
-*)
-thm selection_sort.cases 
-(*
-In contrast, the rule selection_sort.elims also
-tell us what the function value will be in each case:
-*)
-thm selection_sort.elims
-thm selection_sort.induct
 
 lemma p_13 [simp]: "m = Min(set xs)  \<Longrightarrow> e \<in> set(xs) \<Longrightarrow>  m \<le> e"
 proof(induct xs)
