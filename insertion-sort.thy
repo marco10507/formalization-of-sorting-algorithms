@@ -16,7 +16,7 @@ insert_sort_Cons: "insert_sort (x#xs)  = insert x (insert_sort(xs))"
 
 value "insert_sort [2,4,10,0,3]"
 
-lemma p_19999 : "\<lbrakk>sorted(y#ys); \<not> x \<le> y\<rbrakk> \<Longrightarrow> sorted (y#insert x ys)"
+lemma sorted_accepts_insert : "\<lbrakk>sorted(y#ys); \<not> x \<le> y\<rbrakk> \<Longrightarrow> sorted (y#insert x ys)"
 proof(induction ys arbitrary: y rule: sorted.induct)
   case 1
   then show ?case by auto
@@ -25,7 +25,7 @@ next
   then show ?case by (metis insert_Cons le_cases sorted2)
 qed
 
-lemma p_1 : "sorted(ys) \<Longrightarrow> sorted (insert x ys)"
+lemma insert_output_sorted : "sorted(ys) \<Longrightarrow> sorted (insert x ys)"
 proof (induct ys rule: insert.induct)
   case (1 x)
   then show ?case by simp
@@ -42,13 +42,13 @@ next
     case False
     have "sorted ys" using "local.2.prems" List.linorder_class.sorted.simps(2) by blast
     also have "sorted (insert x ys)" by (simp add: "local.2.hyps" False calculation)
-    moreover have "sorted (y#insert x ys)" using "local.2.prems" False p_19999 by blast
+    moreover have "sorted (y#insert x ys)" using "local.2.prems" False sorted_accepts_insert by blast
     then have "sorted (insert x (y # ys))" by (simp add: False)
     then show "sorted (insert x (y # ys))" by assumption
   qed
 qed
 
-theorem p_2 : "sorted(insert_sort(ys))"
+theorem insert_sort_output_sorted : "sorted(insert_sort(ys))"
 proof (induct ys rule:insert_sort.induct)
   case 1
   have "sorted []" by simp
@@ -56,12 +56,12 @@ proof (induct ys rule:insert_sort.induct)
   then show ?case by assumption
 next
   case (2 x xs)
-  moreover have "sorted(insert x (insert_sort(xs)))" by (simp add: "local.2.hyps" p_1)
+  moreover have "sorted(insert x (insert_sort(xs)))" by (simp add: "local.2.hyps" insert_output_sorted)
   then have "sorted (insert_sort (x # xs))" by simp
   then show "sorted (insert_sort (x # xs))" by assumption
 qed
 
-lemma p_20: "mset (insert x ys) = mset (x#ys)"
+lemma insert_is_permutation_of_input: "mset (insert x ys) = mset (x#ys)"
 proof(induct ys arbitrary: x)
   case Nil
   then show ?case  by simp
@@ -70,13 +70,13 @@ next
   then show ?case by simp
 qed
 
-theorem p_30: "mset (insert_sort xs) = mset xs" 
+theorem insert_sort_is_permutation_of_input: "mset (insert_sort xs) = mset xs" 
 proof(induct xs rule: insert_sort.induct)
   case 1
   then show ?case by simp
 next
   case (2 x xs)
-  then show ?case by (simp add: p_20)
+  then show ?case by (simp add: insert_is_permutation_of_input)
 qed
 
 fun insert_sort_tail:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
@@ -85,20 +85,20 @@ insert_sort_tail_Cons: "insert_sort_tail (x#xs) accum  = insert_sort_tail (xs) (
 
 value "insert_sort_tail ([2,4,10]) ([])"
 
-theorem p_60: "sorted(ACCUM) \<Longrightarrow> sorted(insert_sort_tail xs ACCUM)"
+theorem insert_sort_tail_output_sorted: "sorted(ACCUM) \<Longrightarrow> sorted(insert_sort_tail xs ACCUM)"
 proof(induct xs arbitrary:ACCUM)
   case Nil
   then show ?case by simp
 next
   case (Cons a xs)
-  then show ?case by (simp add: p_1)
+  then show ?case by (simp add: insert_output_sorted)
 qed
 
-lemma p_70: "mset (insert_sort_tail xs ACCUM) = mset (xs@ACCUM)"
+theorem insert_sort_tail_is_permutation_of_input: "mset (insert_sort_tail xs ACCUM) = mset (xs@ACCUM)"
 proof(induct xs arbitrary:ACCUM)
   case Nil
   then show ?case by simp
 next
   case (Cons a xs)
-  then show ?case by (simp add: p_20)
+  then show ?case by (simp add: insert_is_permutation_of_input)
 qed
