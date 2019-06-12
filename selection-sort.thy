@@ -25,18 +25,7 @@ next
   qed
 qed
 
-lemma p_3 [simp]: "y \<in> set (x#xs) \<Longrightarrow> length (remove1 y (x#xs)) = length (x#xs) - 1"
-  apply(induct xs)
-  apply(auto)
-done
-
-lemma p_30 [simp]: "xs \<noteq> [] \<Longrightarrow> y \<in> set (xs) \<Longrightarrow> length (remove1 y (xs)) = length (xs) - 1"
-  apply(induct xs)
-  apply simp
-  apply (meson length_remove1)
-done
-
-lemma p_5 [simp]: "y \<in> set (x#xs) \<Longrightarrow> length (remove1 y (x#xs)) < length (x#xs)"
+lemma remove_member: "y \<in> set (x#xs) \<Longrightarrow> length (remove1 y (x#xs)) < length (x#xs)"
   apply(induct xs)
   apply(auto)
 done
@@ -47,7 +36,7 @@ function selection_sort:: "nat list \<Rightarrow> nat list" where
 "selection_sort [] = []" |
 "selection_sort (x#xs) = (let m = Min (set(x#xs)) in m#selection_sort(remove1 m (x#xs)))"
 by pat_completeness auto
-termination by (meson "termination" in_measure min_membership p_5 wf_measure)
+termination by (meson "termination" in_measure min_membership remove_member wf_measure)
 
 value "selection_sort [2,4,10,0,0]"
 (*
@@ -135,7 +124,7 @@ by pat_completeness auto
 termination
 apply(relation "measure (\<lambda>(xs,accum). size xs)")
 apply simp
-by (metis case_prod_conv in_measure p_200 p_5)
+by (metis case_prod_conv in_measure p_200 remove_member)
 
 value "tr_selection_sort [2,4,10,0,0] []"
 
