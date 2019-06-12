@@ -20,15 +20,36 @@ next
     moreover have "m \<notin> set (a # xs)" by (metis Cons.prems False List.finite_set Min_eqI Min_le insertI2 list.simps(15))
     moreover have "m \<in> {Min ({x})}" by (metis (mono_tags, lifting) List.finite_set Min_in calculation(1) calculation(2) insert_iff insert_is_Un list.simps(15) set_empty singleton_iff)
     moreover have "m \<in> {x}" using Min_singleton calculation(3) by simp
-    moreover have  "m \<in> set (x # a # xs)"  using calculation(4) by auto
+    moreover have  "m \<in> set (x # a # xs)" using calculation(4) by auto
     then show "m \<in> set (x # a # xs)" by assumption
   qed
 qed
 
 lemma remove_member: "y \<in> set (x#xs) \<Longrightarrow> length (remove1 y (x#xs)) < length (x#xs)"
-  apply(induct xs)
-  apply(auto)
-done
+proof(induct xs arbitrary: y x)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a xs)
+  then show "length (remove1 y (x # a # xs)) < length (x # a # xs)"
+  proof(cases "y \<in> set (a # xs)")
+    case True
+    have "length (remove1 y (a # xs)) < length (a # xs)" using Cons.hyps True by simp
+    moreover have "length (remove1 y (a # xs)) < length (x # a # xs)" using calculation by simp
+    moreover have "length (remove1 y (x #a # xs)) < length (x # a # xs)" using calculation by simp
+    then show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by assumption
+  next
+    case False
+    have "y \<in> {x} \<union> set (a # xs)" using Cons.prems by auto
+    moreover have "y \<in> {x}" using False calculation by simp
+    moreover have "length (remove1 y ([x])) < length ([x])" using calculation by simp
+    moreover have "length (remove1 y ([x])) < length (x # a # xs)" using calculation by simp
+    moreover have "length (remove1 y (x # a # xs)) < length (x # a # xs)" using calculation by simp
+    then show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by assumption
+  qed
+qed
+
+(* 1. \<And>a xs y x. (\<And>y x. y \<in> set (x # xs) \<Longrightarrow> length (remove1 y (x # xs)) < length (x # xs))		\<Longrightarrow> y \<in> set (x # a # xs) 		\<Longrightarrow> length (remove1 y (x # a # xs)) < length (x # a # xs)*)
 
 (*important to proof this makes lemma p_7 to work, which also help to termiante the execution*)
 (*not tail-recursive*)
