@@ -19,8 +19,8 @@ next
     have "m \<in> {Min ({x} \<union> set (a # xs))}" by (metis Cons.prems insertCI insert_is_Un list.simps(15))
     moreover have "m \<notin> set (a # xs)" by (metis Cons.prems False List.finite_set Min_eqI Min_le insertI2 list.simps(15))
     moreover have "m \<in> {Min ({x})}" by (metis (mono_tags, lifting) List.finite_set Min_in calculation(1) calculation(2) insert_iff insert_is_Un list.simps(15) set_empty singleton_iff)
-    moreover have "m \<in> {x}" using Min_singleton calculation(3) by simp
-    moreover have  "m \<in> set (x # a # xs)" using calculation(4) by auto
+    moreover have "m \<in> {x}" using Min_singleton calculation by simp
+    moreover have  "m \<in> set (x # a # xs)" using calculation by auto
     then show "m \<in> set (x # a # xs)" by assumption
   qed
 qed
@@ -48,8 +48,6 @@ next
     then show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by assumption
   qed
 qed
-
-(* 1. \<And>a xs y x. (\<And>y x. y \<in> set (x # xs) \<Longrightarrow> length (remove1 y (x # xs)) < length (x # xs))		\<Longrightarrow> y \<in> set (x # a # xs) 		\<Longrightarrow> length (remove1 y (x # a # xs)) < length (x # a # xs)*)
 
 (*important to proof this makes lemma p_7 to work, which also help to termiante the execution*)
 (*not tail-recursive*)
