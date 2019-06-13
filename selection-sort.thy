@@ -79,8 +79,20 @@ proof(induct xs arbitrary: e rest)
   then show ?case by simp
 next
   case (Cons a xs)
-  moreover have "mset (a # xs) = mset (rest) + {#e#}" using Cons.hyps local.Cons.prems(1) local.Cons.prems(2) [simp_trace_new]  by auto
-  then show "mset (a # xs) = mset rest + {#e#}" by assumption
+  have "e = a \<or> e \<in> set xs " using Cons.prems(1) by simp
+  then show "mset (a # xs) = mset rest + {#e#}"
+  proof (cases "e = a")
+    case True
+    have "rest = xs" using Cons.prems(2) True  by simp
+    moreover have "mset xs = mset xs " by simp
+    moreover have "mset xs + {#a#} = mset xs + {#a#}" by simp
+    moreover have "mset xs + {#a#} = mset xs + {#e#}" using True  by simp
+    moreover have "mset (a # xs) = mset rest + {#e#}" using True calculation(1) by simp
+    then show "mset (a # xs) = mset rest + {#e#}" by assumption
+  next
+    case False
+    then show ?thesis sorry
+  qed
 qed
 
 theorem "mset (selection_sort(xs)) = mset xs"
@@ -94,7 +106,16 @@ qed
 
 
 
+(*
+proof (prove)
+using this:
+    ?e \<in> set xs \<Longrightarrow> ?rest = remove1 ?e xs \<Longrightarrow> mset xs = mset ?rest + {#?e#}
+    e \<in> set (a # xs)
+    rest = remove1 e (a # xs)
 
+goal (1 subgoal):
+ 1. mset (a # xs) = mset rest + {#e#}
+*)
 
 
 
