@@ -68,7 +68,9 @@ next
   let  ?rest = "remove1 ?min (x # xs)"
   have "sorted (selection_sort ?rest)" using "2.hyps" by simp
   moreover have "sorted (?min#selection_sort ?rest)" by (smt List.finite_set Min_antimono calculation selection_sort.elims selection_sort.simps(1) set_empty set_remove1_subset sorted1 sorted2)
-  then show "sorted (selection_sort (x # xs))" by (metis selection_sort.simps(2))
+  moreover have "sorted (?min#selection_sort ((x # xs)))" by (metis List.finite_set Min_le calculation(2) min_membership selection_sort.simps(2) sorted2)
+  moreover have "sorted (selection_sort ((x # xs)))" using calculation(3) sorted.simps(2) by simp
+  then show "sorted (selection_sort (x # xs))" by assumption
 qed
 
 (*
