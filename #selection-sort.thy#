@@ -58,40 +58,24 @@ termination by (meson "termination" in_measure min_membership remove_member wf_m
 
 value "selection_sort [2,4,10,0,0]"
 
-(*
-lemma p_109090: "\<lbrakk>m = Min(set (xs)); rest = remove1 m (xs)\<rbrakk> \<Longrightarrow> mset (xs) = mset rest + {#m#}"
-proof(induct xs)
-  case Nil
-  then show ?case try
-next
-  case (Cons a xs)
-  then show ?case sorry
-qed
-*)
-
-lemma p_10777777790: "\<lbrakk>m \<in> set (xs);m = Min(set (xs)); rest = remove1 m (xs); e \<in> set (rest) \<rbrakk>  \<Longrightarrow> m \<le> e" sorry
-lemma p_109090: "\<lbrakk>m \<in> set (xs); m = Min(set (xs)); rest = remove1 m (xs)\<rbrakk> \<Longrightarrow> mset rest =  mset (xs) - {#m#}" sorry
-
-
-lemma p_11: "\<lbrakk>m = Min(set (xs)); rest = remove1 m (xs) ; sorted(selection_sort(rest))\<rbrakk> \<Longrightarrow> sorted (m#selection_sort(rest))"
-proof(induct xs arbitrary: m rest rule:sorted.induct)
+theorem ss_s: "sorted (selection_sort(xs))"
+proof(induct xs rule:selection_sort.induct)
   case 1
   then show ?case by simp
 next
-  case (2 x ys)
-  then show "sorted (m # selection_sort rest)"
-  proof (cases "m = Min (set (ys))")
-    case True
-    have "m \<in> {Min (set (ys))}" by (simp add: True)
-    moreover have "rest =  remove1 m ys" sledgehammer
-    then show "sorted (m # selection_sort rest)" sorry
-  next
-    case False
-    then show ?thesis sorry
-  qed
+  case (2 x xs)
+  let ?min = "Min (set (x # xs))"
+  let  ?rest = "remove1 ?min (x # xs)"
+  have "sorted (selection_sort ?rest)" using "2.hyps" by simp
+  moreover have "sorted (?min#selection_sort ?rest)" by (smt List.finite_set Min_antimono calculation selection_sort.elims selection_sort.simps(1) set_empty set_remove1_subset sorted1 sorted2)
+  then show "sorted (selection_sort (x # xs))" by (metis selection_sort.simps(2))
 qed
 
-(*?m = Min (set ys) \<Longrightarrow> ?rest = remove1 ?m ys \<Longrightarrow> sorted (selection_sort ?rest) \<Longrightarrow> sorted (?m # selection_sort ?rest)    2(1)*)
+(*
+ \<And>x xs. (\<And>xa xb. xa = Min (set (x # xs)) \<Longrightarrow> xb = remove1 xa (x # xs) \<Longrightarrow> sorted (selection_sort xb))     \<Longrightarrow> sorted (selection_sort (x # xs))
+
+
+
 
 theorem ss_s: "sorted (selection_sort(xs))"
 proof(induct xs rule:selection_sort.induct)
@@ -99,9 +83,15 @@ proof(induct xs rule:selection_sort.induct)
   then show ?case by simp
 next
   case (2 x xs)
-  then show "sorted (selection_sort (x # xs))" by (metis p_11 selection_sort.simps(2))
+  let ?min = "Min (set (x # xs))"
+  let  ?rest = "remove1 ?min (x # xs)"
+  have "sorted (selection_sort ?rest)" using "2.hyps" by simp
+  moreover have "sorted (selection_sort (remove1 ?min (x # xs)))" using calculation by simp
+  moreover have "sorted (selection_sort (remove1 (Min (set (x # xs))) (x # xs)))" using calculation by simp
+  then show "sorted (selection_sort (x # xs))"
+  proof (-)
 qed
-
+*)
 
 lemma 100: "e \<in> set xs \<Longrightarrow> rest = remove1 e xs \<Longrightarrow> mset xs = mset rest + {#e#}"
 proof(induct xs)
@@ -170,4 +160,32 @@ next
   case (Cons a xs)
   then show ?case by blast
 qed
+
+
+
+
+(*
+
+lemma p_11: "\<lbrakk>m = Min(set (xs)); rest = remove1 m (xs) ; sorted(selection_sort(rest))\<rbrakk> \<Longrightarrow> sorted (m#selection_sort(rest))"
+proof(induct xs arbitrary: m rest rule:sorted.induct)
+  case 1
+  then show ?case by simp
+next
+  case (2 x ys)
+  then show "sorted (m # selection_sort rest)"
+  proof (cases "m = Min (set (ys))")
+    case True
+    have "m \<in> {Min ({x} \<union> set (ys))}" using "2.prems"(1) by simp
+    moreover  have "m \<in> {Min (set (ys))}" by (simp add: True)
+    moreover  have "m \<in> {x} \<union> set (ys)" using "2.prems"(1) min_membership by auto
+    moreover  have "m \<in> set (ys)" sledgehammer
+    moreover  have "m \<notin> {x}" sledgehammer
+    then show "sorted (m # selection_sort rest)" sorry
+  next
+    case False
+    then show ?thesis sorry
+  qed
+qed
+
+*)
 
