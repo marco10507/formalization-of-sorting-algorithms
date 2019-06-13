@@ -73,13 +73,14 @@ next
   then show "sorted (selection_sort (x # xs))" by assumption
 qed
 
-lemma 100: "e \<in> set xs \<Longrightarrow> rest = remove1 e xs \<Longrightarrow> mset xs = mset rest + {#e#}"
-proof(induct xs)
+lemma remove1_min: "\<lbrakk>e \<in> set (xs); rest = remove1 e xs\<rbrakk> \<Longrightarrow> mset xs = mset rest + {#e#}"
+proof(induct xs arbitrary: e rest)
   case Nil
   then show ?case by simp
 next
   case (Cons a xs)
-  then show ?case by (metis add.right_neutral insert_DiffM mset_remove1 set_mset_mset union_mset_add_mset_right)
+  moreover have "mset (a # xs) = mset (rest) + {#e#}" using Cons.hyps local.Cons.prems(1) local.Cons.prems(2) [simp_trace_new]  by auto
+  then show "mset (a # xs) = mset rest + {#e#}" by assumption
 qed
 
 theorem "mset (selection_sort(xs)) = mset xs"
@@ -88,7 +89,7 @@ case 1
 then show ?case by simp
 next
   case (2 x xs)
-  then show ?case by (metis "100" add.right_neutral min_membership mset.simps(2) selection_sort.simps(2) union_mset_add_mset_right)
+  then show ?case by (metis remove1_min add.right_neutral min_membership mset.simps(2) selection_sort.simps(2) union_mset_add_mset_right)
 qed
 
 
