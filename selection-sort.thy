@@ -73,28 +73,6 @@ next
   then show "sorted (selection_sort (x # xs))" by assumption
 qed
 
-(*
- \<And>x xs. (\<And>xa xb. xa = Min (set (x # xs)) \<Longrightarrow> xb = remove1 xa (x # xs) \<Longrightarrow> sorted (selection_sort xb))     \<Longrightarrow> sorted (selection_sort (x # xs))
-
-
-
-
-theorem ss_s: "sorted (selection_sort(xs))"
-proof(induct xs rule:selection_sort.induct)
-  case 1
-  then show ?case by simp
-next
-  case (2 x xs)
-  let ?min = "Min (set (x # xs))"
-  let  ?rest = "remove1 ?min (x # xs)"
-  have "sorted (selection_sort ?rest)" using "2.hyps" by simp
-  moreover have "sorted (selection_sort (remove1 ?min (x # xs)))" using calculation by simp
-  moreover have "sorted (selection_sort (remove1 (Min (set (x # xs))) (x # xs)))" using calculation by simp
-  then show "sorted (selection_sort (x # xs))"
-  proof (-)
-qed
-*)
-
 lemma 100: "e \<in> set xs \<Longrightarrow> rest = remove1 e xs \<Longrightarrow> mset xs = mset rest + {#e#}"
 proof(induct xs)
   case Nil
