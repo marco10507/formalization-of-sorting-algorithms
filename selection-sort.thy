@@ -58,7 +58,7 @@ termination by (meson "termination" in_measure min_membership remove_member wf_m
 
 value "selection_sort [2,4,10,0,0]"
 
-theorem ss_s: "sorted (selection_sort(xs))"
+theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
 proof(induct xs rule:selection_sort.induct)
   case 1
   then show ?case by simp
@@ -141,31 +141,4 @@ next
   then show ?case by blast
 qed
 
-
-
-
-(*
-
-lemma p_11: "\<lbrakk>m = Min(set (xs)); rest = remove1 m (xs) ; sorted(selection_sort(rest))\<rbrakk> \<Longrightarrow> sorted (m#selection_sort(rest))"
-proof(induct xs arbitrary: m rest rule:sorted.induct)
-  case 1
-  then show ?case by simp
-next
-  case (2 x ys)
-  then show "sorted (m # selection_sort rest)"
-  proof (cases "m = Min (set (ys))")
-    case True
-    have "m \<in> {Min ({x} \<union> set (ys))}" using "2.prems"(1) by simp
-    moreover  have "m \<in> {Min (set (ys))}" by (simp add: True)
-    moreover  have "m \<in> {x} \<union> set (ys)" using "2.prems"(1) min_membership by auto
-    moreover  have "m \<in> set (ys)" sledgehammer
-    moreover  have "m \<notin> {x}" sledgehammer
-    then show "sorted (m # selection_sort rest)" sorry
-  next
-    case False
-    then show ?thesis sorry
-  qed
-qed
-
-*)
 
