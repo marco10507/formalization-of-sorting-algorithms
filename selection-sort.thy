@@ -79,7 +79,6 @@ proof(induct xs arbitrary: e rest)
   then show ?case by simp
 next
   case (Cons a xs)
-  have "e = a \<or> e \<in> set xs " using Cons.prems(1) by simp
   then show "mset (a # xs) = mset rest + {#e#}"
   proof (cases "e = a")
     case True
@@ -91,7 +90,15 @@ next
     then show "mset (a # xs) = mset rest + {#e#}" by assumption
   next
     case False
-    then show ?thesis sorry
+    have "e \<in> set xs" using Cons.prems(1) False by simp
+    moreover have "rest = a # remove1 e xs" using Cons.prems(2) False  by simp
+    moreover have "mset (remove1 e xs) = mset xs - {#e#}"  by simp
+    moreover have " {#a#} +  mset xs - {#e#} = mset (a # remove1 e xs)"  using calculation(1) by simp
+    moreover have " {#a#} +  mset xs - {#e#} + {#e#} = mset (a # remove1 e xs) + {#e#}" using calculation by simp
+    moreover have " {#a#} +  mset xs = mset (a # remove1 e xs) + {#e#}" using calculation by simp
+    moreover have " mset (a # xs) = mset (a # remove1 e xs) + {#e#}" using calculation by simp
+    moreover have " mset (a # xs) = mset (rest) + {#e#}" using calculation(2) calculation(7) by simp
+    then show "mset (a # xs) = mset rest + {#e#}" by assumption
   qed
 qed
 
@@ -103,24 +110,6 @@ next
   case (2 x xs)
   then show ?case by (metis remove1_min add.right_neutral min_membership mset.simps(2) selection_sort.simps(2) union_mset_add_mset_right)
 qed
-
-
-
-(*
-proof (prove)
-using this:
-    ?e \<in> set xs \<Longrightarrow> ?rest = remove1 ?e xs \<Longrightarrow> mset xs = mset ?rest + {#?e#}
-    e \<in> set (a # xs)
-    rest = remove1 e (a # xs)
-
-goal (1 subgoal):
- 1. mset (a # xs) = mset rest + {#e#}
-*)
-
-
-
-
-
 
 
 (*tail-recursive version*)
