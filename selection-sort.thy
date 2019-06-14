@@ -20,7 +20,7 @@ next
     moreover have "m \<notin> set (a # xs)" by (metis Cons.prems False List.finite_set Min_eqI Min_le insertI2 list.simps(15))
     moreover have "m \<in> {Min ({x})}" by (metis (mono_tags, lifting) List.finite_set Min_in calculation(1) calculation(2) insert_iff insert_is_Un list.simps(15) set_empty singleton_iff)
     moreover have "m \<in> {x}" using Min_singleton calculation by simp
-    moreover have  "m \<in> set (x # a # xs)" using calculation by auto
+    moreover have  "m \<in> set (x # a # xs)" using calculation by simp
     then show "m \<in> set (x # a # xs)" by assumption
   qed
 qed
@@ -146,13 +146,27 @@ qed
 
 (*tail-recursive version*)
 
-lemma p_200 [simp]: "m = Max(set (x#xs)) \<Longrightarrow> m \<in> set (x#xs)"
-proof(induct xs)
+lemma max_membership: "m = Max(set (x#xs)) \<Longrightarrow> m \<in> set (x#xs)"
+proof(induct xs arbitrary: x m)
   case Nil
   then show ?case by simp
 next
   case (Cons a xs)
-  then show ?case using eq_Max_iff by blast
+  then show "m \<in> set (x # a # xs)"
+  proof(cases "m = Max (set (a#xs))")
+    case True
+    have "m \<in> set (a# xs)" using Cons.hyps True by simp
+    moreover have "m \<in> set (x # a # xs)" using calculation by auto
+    then show "m \<in> set (x # a # xs)" by assumption
+  next
+    case False
+    have "m \<in> {Max ({x} \<union> set (a # xs))}" by (metis Cons.prems insertCI insert_is_Un list.simps(15))
+    moreover have "m \<notin> set (a # xs)" by (metis Cons.prems False List.finite_set Max.in_idem Max.union insert_is_Un list.distinct(1) list.simps(15) set_empty sup.right_idem)
+    moreover have "m \<in> {Max ({x})}" by (metis (mono_tags, lifting) Cons.prems List.finite_set Max_in calculation(2) insert_iff list.simps(15) set_empty singleton_iff)
+    moreover have "m \<in> {x}"  using Max_singleton calculation(3) by blast
+    moreover have  "m \<in> set (x # a # xs)" using calculation by simp
+    then show "m \<in> set (x # a # xs)" by assumption
+  qed
 qed
 
 function (sequential) tr_selection_sort:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
@@ -162,14 +176,14 @@ by pat_completeness auto
 termination
 apply(relation "measure (\<lambda>(xs,accum). size xs)")
 apply simp
-by (metis case_prod_conv in_measure p_200 remove_member)
+by (metis case_prod_conv in_measure max_membership remove_member)
 
 value "tr_selection_sort [2,4,10,0,0] []"
 
 theorem tr_ss_s: "sorted (ACCUM) \<Longrightarrow> \<forall>A e. A \<in> (set ACCUM) \<and> e \<in> set xs \<and> A \<le> e  \<Longrightarrow> sorted (tr_selection_sort xs ACCUM)"
 proof(induct xs rule:tr_selection_sort.induct)
 case (1 accum)
-then show ?case by blast
+then show ?case by simp
 next
 case (2 v va accum)
   then show ?case by (simp add: sorted01)
