@@ -102,13 +102,31 @@ next
   qed
 qed
 
-theorem "mset (selection_sort(xs)) = mset xs"
+theorem selection_sort_is_permutation_of_input: "mset (selection_sort(xs)) = mset xs"
 proof(induct xs rule: selection_sort.induct)
 case 1
 then show ?case by simp
 next
   case (2 x xs)
-  then show ?case by (metis remove1_min add.right_neutral min_membership mset.simps(2) selection_sort.simps(2) union_mset_add_mset_right)
+  let ?min = "Min (set (x # xs))"
+  let ?rest = "remove1 ?min (x # xs)"
+  have IH: "mset (selection_sort ?rest) = mset ?rest" using "2.hyps" by simp
+  then show "mset (selection_sort (x # xs)) = mset (x # xs)"
+  proof(cases "?min = x")
+    case True
+    have "?rest = xs" using True by simp
+    moreover have "mset (selection_sort ?rest) = mset ?rest" using IH by simp
+    moreover have "mset (selection_sort ?rest) + {#?min#} = mset ?rest + {#?min#}" using True calculation by simp
+    moreover have "mset (?min#selection_sort ?rest) = mset ?rest + {#?min#}" using True calculation by simp
+    moreover have "mset (x#selection_sort xs) = mset ?rest + {#?min#}" using True calculation by simp
+    moreover have "mset (selection_sort (x#xs)) = mset ?rest + {#?min#}" using True calculation by simp
+    moreover have "mset (selection_sort (x#xs)) = mset xs + {#x#}" using True calculation by simp
+    moreover have "mset (selection_sort (x#xs)) = mset (x#xs)" using True calculation by simp
+    then show "mset (selection_sort (x # xs)) = mset (x # xs)" by assumption
+  next
+  case False
+    then show ?thesis sorry
+  qed
 qed
 
 
