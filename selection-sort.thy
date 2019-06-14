@@ -169,9 +169,9 @@ next
   qed
 qed
 
-function (sequential) tr_selection_sort:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
+function tr_selection_sort:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
 "tr_selection_sort [] accum = accum" |
-"tr_selection_sort (xs) accum = (let m = Max (set(xs)) in tr_selection_sort(remove1 m (xs)) (m#accum))"
+"tr_selection_sort (x#xs) accum = (let max = Max (set(x#xs)); rest =remove1 max (x#xs) in tr_selection_sort(rest) (max#accum))"
 by pat_completeness auto
 termination
 apply(relation "measure (\<lambda>(xs,accum). size xs)")
@@ -180,16 +180,23 @@ by (metis case_prod_conv in_measure max_membership remove_member)
 
 value "tr_selection_sort [2,4,10,0,0] []"
 
-theorem tr_ss_s: "sorted (ACCUM) \<Longrightarrow> \<forall>A e. A \<in> (set ACCUM) \<and> e \<in> set xs \<and> A \<le> e  \<Longrightarrow> sorted (tr_selection_sort xs ACCUM)"
-proof(induct xs rule:tr_selection_sort.induct)
-case (1 accum)
-then show ?case by simp
+theorem tr_selection_sort_output_sorted: "\<lbrakk>sorted (ACCUM);  \<forall>A e. A \<in> (set ACCUM) \<and> e \<in> set xs \<and> e \<le> A \<rbrakk>\<Longrightarrow> sorted (tr_selection_sort xs ACCUM)"
+proof(induct xs arbitrary: ACCUM rule:tr_selection_sort.induct)
+  case (1 zs)
+  then show ?case  by (simp add: sorted01)
 next
-case (2 v va accum)
-  then show ?case by (simp add: sorted01)
+  case (2 v va zs)
+  let ?max = "Max (set (v # va))"
+  let ?rest = "remove1 ?max (v # va)"
+  have "sorted (ACCUM)" using "2.prems"(1) by simp
+  moreover have " \<forall>A e. A \<in> set ACCUM \<and> e \<in> set (?max # zs) \<and> e \<le> A" using "2.prems"(2) by simp
+  moreover have "sorted (tr_selection_sort (?max # zs) ACCUM)" using 2(1) calculation by simp
+  moreover have "sorted (tr_selection_sort (zs) (?max#ACCUM))"  using calculation by blast
+  moreover have "sorted (tr_selection_sort (zs) (ACCUM))" using calculation by blast
+  then show "sorted (tr_selection_sort zs ACCUM)"  by assumption
 qed
 
-theorem tr_ss_permutation: "sorted (ACCUM) \<Longrightarrow> \<forall>A e. A \<in> (set ACCUM) \<and> e \<in> set xs \<and> A \<le> e  \<Longrightarrow> mset (tr_selection_sort xs ACCUM) = mset xs + mset ACCUM"
+theorem tr_ss_permutation: "sorted (ACCUM) \<Longrightarrow> \<forall>A e. A \<in> (set ACCUM) \<and> e \<in> set xs \<and> e \<le> A  \<Longrightarrow> mset (tr_selection_sort xs ACCUM) = mset xs + mset ACCUM"
 proof(induct xs arbitrary: ACCUM)
   case Nil
   then show ?case by simp
