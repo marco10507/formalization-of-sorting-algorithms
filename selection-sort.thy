@@ -125,59 +125,24 @@ next
     then show "mset (selection_sort (x # xs)) = mset (x # xs)" by assumption
   next
     case False
-    have "?min = Min (set (xs))" by (metis False List.finite_set Min_eqI Min_le list.set_intros(2) min_membership set_ConsD) 
-    moreover have "?rest = x#remove1 ?min xs" using False by simp
-    moreover have "mset xs = mset (remove1 ?min xs) + {#?min#}" by (meson False min_membership remove1_min set_ConsD)
-    moreover have "mset (selection_sort ?rest) = mset ?rest" using IH by simp
+    have min: "?min = Min (set (xs))" by (metis False List.finite_set Min_eqI Min_le list.set_intros(2) min_membership set_ConsD) 
+    moreover have rest:"?rest = x#remove1 ?min xs" using False by simp
+    moreover have remove1_simp: "mset xs = mset (remove1 ?min xs) + {#?min#}" by (meson False min_membership remove1_min set_ConsD)
 
-    moreover have "mset ?rest + {#?min#} = mset ?rest + {#?min#}"  by simp 
-    moreover have "mset ?rest + {#?min#} = mset (x#remove1 ?min xs) + {#?min#}" using calculation  by simp
-    moreover have "mset ?rest + {#?min#} = (mset (remove1 ?min xs) + {#?min#}) + {#x#}" using calculation by simp
-    moreover have "mset ?rest + {#?min#} = (mset (xs)) + {#x#}"using add_cancel_right_left calculation(1) calculation(3) by auto
-    moreover have "mset ?rest + {#?min#} = mset (x # xs)" using calculation by simp
-    moreover have "mset (selection_sort ?rest) + {#?min#} = mset (x # xs)" using calculation by simp
-    moreover have "mset (?min#selection_sort ?rest) = mset (x # xs)" using calculation by simp
-    moreover have "mset (selection_sort (x # xs)) = mset (x # xs)" using calculation selection_sort.simps(2) by metis
+    moreover{
+      have "mset ?rest = mset ?rest"  by simp
+      moreover have "mset ?rest + {#?min#} = mset ?rest + {#?min#}"  by simp 
+      moreover have "mset ?rest + {#?min#} = mset (x#remove1 ?min xs) + {#?min#}" using rest by simp
+      moreover have "mset ?rest + {#?min#} = (mset (remove1 ?min xs) + {#?min#}) + {#x#}" using calculation by simp
+      moreover have "mset ?rest + {#?min#} = (mset (xs)) + {#x#}" using remove1_simp by simp
+      moreover have "mset ?rest + {#?min#} = mset (x # xs)" using calculation by simp
+      moreover have "mset (selection_sort ?rest) + {#?min#} = mset (x # xs)" using IH calculation by simp
+      moreover have "mset (?min#selection_sort ?rest) = mset (x # xs)" using calculation by simp
+      moreover have "mset (selection_sort (x # xs)) = mset (x # xs)" using calculation selection_sort.simps(2) by metis
+    }
     then show "mset (selection_sort (x # xs)) = mset (x # xs)" by assumption
   qed
 qed
-
-(*
-
-theorem selection_sort_is_permutation_of_input: "mset (selection_sort(xs)) = mset xs"
-proof(induct xs rule: selection_sort.induct)
-case 1
-then show ?case by simp
-next
-  case (2 x xs)
-  let ?min = "Min (set (x # xs))"
-  let ?rest = "remove1 ?min (x # xs)"
-  have IH: "mset (selection_sort ?rest) = mset ?rest" using "2.hyps" by simp
-  then show "mset (selection_sort (x # xs)) = mset (x # xs)"
-  proof(cases "?min = x")
-    case True
-    have "?rest = xs" using True by simp
-    moreover have "mset (selection_sort ?rest) = mset ?rest" using IH by simp
-    moreover have "mset (selection_sort ?rest) + {#?min#} = mset ?rest + {#?min#}" using True calculation by simp
-    moreover have "mset (?min#selection_sort ?rest) = mset ?rest + {#?min#}" using True calculation by simp
-    moreover have "mset (x#selection_sort xs) = mset ?rest + {#?min#}" using True calculation by simp
-    moreover have "mset (selection_sort (x#xs)) = mset ?rest + {#?min#}" using True calculation by simp
-    moreover have "mset (selection_sort (x#xs)) = mset xs + {#x#}" using True calculation by simp
-    moreover have "mset (selection_sort (x#xs)) = mset (x#xs)" using True calculation by simp
-    then show "mset (selection_sort (x # xs)) = mset (x # xs)" by assumption
-  next
-    case False
-    moreover have "?min = Min (set (xs))" by (metis False List.finite_set Min_eqI Min_le list.set_intros(2) min_membership set_ConsD)
-    moreover have "?rest = x#remove1 ?min xs" using False by simp
-    moreover have "mset (selection_sort ?rest) = mset ?rest" using IH by simp
-    moreover have "mset (selection_sort (x#remove1 ?min xs)) = mset ?rest"  using calculation by simp
-    moreover have "mset (selection_sort (x#remove1 ?min xs)) + {#?min#} = mset ?rest + {#?min#}"  using calculation by simp
-    moreover have "mset ?rest + {#?min#} = mset ?rest + {#?min#}" using calculation(4) by simp
-   
-    then show "mset (selection_sort (x # xs)) = mset (x # xs)" sorry
-  qed
-qed
-*)
 
 (*tail-recursive version*)
 
