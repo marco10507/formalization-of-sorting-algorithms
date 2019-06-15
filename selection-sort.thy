@@ -180,7 +180,7 @@ by (metis case_prod_conv in_measure max_membership remove_member)
 
 value "tr_selection_sort [2,4,10,0,0] []"
 
-theorem tr_selection_sort_output_sorted: "\<lbrakk>sorted (ACCUM);  \<forall>A e. A \<in> (set ACCUM) \<and> e \<in> set xs \<and> e \<le> A \<rbrakk>\<Longrightarrow> sorted (tr_selection_sort xs ACCUM)"
+theorem tr_selection_sort_output_sorted: "\<lbrakk>sorted (ACCUM);  \<forall>A e. A \<in> (set ACCUM) \<and> e \<in> set xs \<and> e \<le> A\<rbrakk>\<Longrightarrow> sorted (tr_selection_sort xs ACCUM)"
 proof(induct xs arbitrary: ACCUM rule:tr_selection_sort.induct)
   case (1 zs)
   then show ?case  by (simp add: sorted01)
@@ -196,13 +196,16 @@ next
   then show "sorted (tr_selection_sort zs ACCUM)"  by assumption
 qed
 
-theorem tr_ss_permutation: "sorted (ACCUM) \<Longrightarrow> \<forall>A e. A \<in> (set ACCUM) \<and> e \<in> set xs \<and> e \<le> A  \<Longrightarrow> mset (tr_selection_sort xs ACCUM) = mset xs + mset ACCUM"
+theorem tr_selection_sort_is_permutation_of_input: "\<lbrakk>sorted (ACCUM); \<forall>A e. A \<in> (set ACCUM) \<and> e \<in> set xs \<and> e \<le> A\<rbrakk>  \<Longrightarrow> mset (tr_selection_sort xs ACCUM) = mset xs + mset ACCUM"
 proof(induct xs arbitrary: ACCUM)
   case Nil
   then show ?case by simp
 next
   case (Cons a xs)
-  then show ?case by blast
+  moreover have  "mset xs + {#a#} + mset ACCUM = mset xs + {#a#} + mset ACCUM" by simp
+  moreover have  "mset xs + {#a#} + mset ACCUM = mset (a # xs) + mset ACCUM" by simp
+  moreover have  "(mset xs + mset ACCUM) + {#a#} = mset (a # xs) + mset ACCUM" by simp
+  moreover have  "(mset (tr_selection_sort xs ACCUM)) + {#a#} = mset (a # xs) + mset ACCUM" using calculation by blast
+  moreover have  "(mset (tr_selection_sort (a#xs) ACCUM)) = mset (a # xs) + mset ACCUM" using calculation by blast
+  then show "mset (tr_selection_sort (a # xs) ACCUM) = mset (a # xs) + mset ACCUM" by assumption
 qed
-
-
