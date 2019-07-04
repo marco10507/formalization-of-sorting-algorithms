@@ -28,23 +28,28 @@ qed
 lemma remove_member: "y \<in> set (x#xs) \<Longrightarrow> length (remove1 y (x#xs)) < length (x#xs)"
 proof(induct xs arbitrary: y x)
   case Nil
-  then show ?case by simp
+  have "length (remove1 y [x]) = length (remove1 x [x])" using Nil.prems by simp
+  also have "length (remove1 x [x]) = length []" by simp
+  also have "length [] < length [x]" by simp
+  finally have "length (remove1 y [x]) < length [x]" by this
+  then show "length (remove1 y [x]) < length [x]" by assumption
 next
   case (Cons a xs)
   then show "length (remove1 y (x # a # xs)) < length (x # a # xs)"
   proof(cases "y \<in> set (a # xs)")
     case True
-    have "length (remove1 y (a # xs)) < length (a # xs)" using Cons.hyps True by simp
-    moreover have "length (remove1 y (a # xs)) < length (x # a # xs)" using calculation by simp
-    moreover have "length (remove1 y (x #a # xs)) < length (x # a # xs)" using calculation by simp
+    have "length (remove1 y (x # a # xs)) = length (x#remove1 y (a # xs))" using One_nat_def Suc_pred True length_Cons length_pos_if_in_set length_remove1 remove1.simps(2)  by metis
+    also have "... = length [x] + length (remove1 y (a # xs))"  by simp
+    also have "... < length [x] + length (a # xs)" using Cons.hyps True by simp
+    also have "... = length (x # a # xs)" by simp
+    finally have "length (remove1 y (x # a # xs)) < length (x # a # xs)" by this
     then show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by assumption
   next
     case False
-    have "y \<in> {x} \<union> set (a # xs)" using Cons.prems by auto
-    moreover have "y \<in> {x}" using False calculation by simp
-    moreover have "length (remove1 y ([x])) < length ([x])" using calculation by simp
-    moreover have "length (remove1 y ([x])) < length (x # a # xs)" using calculation by simp
-    moreover have "length (remove1 y (x # a # xs)) < length (x # a # xs)" using calculation by simp
+    have "length (remove1 y (x # a # xs)) = length (remove1 x (x # a # xs))" using Cons.prems False by simp
+    also have "length (remove1 x (x # a # xs)) = length (a # xs)" by simp
+    also have "length (a # xs) < length (x # a # xs)" by simp
+    finally have "length (remove1 y (x # a # xs)) < length (x # a # xs)" by this
     then show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by assumption
   qed
 qed
