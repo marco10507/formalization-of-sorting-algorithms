@@ -42,8 +42,7 @@ next
     also have "... = length [x] + length (remove1 y (a # xs))"  by simp
     also have "... < length [x] + length (a # xs)" using Cons.hyps True by simp
     also have "... = length (x # a # xs)" by simp
-    finally have "length (remove1 y (x # a # xs)) < length (x # a # xs)" by this
-    then show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by assumption
+    finally show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by this
   next
     case False
     have "length (remove1 y (x # a # xs)) = length (remove1 x (x # a # xs))" using Cons.prems False by simp
