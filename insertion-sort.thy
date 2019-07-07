@@ -70,18 +70,35 @@ proof (induct ys rule:insert_sort.induct)
   then show ?case by assumption
 next
   case (2 x xs)
-  moreover have "sorted(insert x (insert_sort(xs)))" by (simp add: "local.2.hyps" insert_output_sorted)
-  then have "sorted (insert_sort (x # xs))" by simp
-  then show "sorted (insert_sort (x # xs))" by assumption
+  moreover{
+    have "sorted (insert_sort (x # xs)) \<equiv> sorted(insert x (insert_sort(xs)))" by simp
+  }
+
+  moreover {
+    have "sorted(insert x (insert_sort(xs)))" using  "local.2.hyps" insert_output_sorted by simp
+  }
+
+  ultimately show "sorted (insert_sort (x # xs))" by simp
 qed
 
-lemma insert_is_permutation_of_input: "mset (insert x ys) = mset (x#ys)"
-proof(induct ys arbitrary: x)
-  case Nil
-  then show ?case  by simp
-next
-  case (Cons a ys)
+lemma insert_is_permutation_of_input: "mset (insert y ys) = mset (y#ys)"
+proof(induct ys rule:insert.induct)
+  case (1 x)
   then show ?case by simp
+next
+  case (2 x y ys)
+  then show ?case
+  proof (cases "x < y")
+    case True
+    then show "mset (insert x (y # ys)) = mset (x # y # ys)"  by simp
+  next
+    case False
+    have "mset (insert x (y # ys)) = mset (y#insert x ys)" using False by simp
+    also have "... = {#y#} + mset(insert x ys)" by simp
+    also have "... = {#y#} + mset (x # ys)" using "local.2.hyps" False by simp
+    also have "... = mset (x # y # ys)"  by simp
+    finally show "mset (insert x (y # ys)) = mset (x # y # ys)" by this
+  qed
 qed
 
 theorem insert_sort_is_permutation_of_input: "mset (insert_sort xs) = mset xs" 
@@ -92,6 +109,15 @@ next
   case (2 x xs)
   then show ?case by (simp add: insert_is_permutation_of_input)
 qed
+
+
+
+
+
+
+
+
+
 
 fun insert_sort_tail:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
 insert_sort_tail_Nil : "insert_sort_tail [] accum  = accum" |
