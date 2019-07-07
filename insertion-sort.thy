@@ -115,32 +115,6 @@ next
   finally show "mset (insert_sort (x # xs)) = mset (x # xs)" by this
 qed
 
-
-
-
-(*
-insert_sort_Cons: "insert_sort (x#xs)  = insert x (insert_sort(xs))"
-
-proof(induct xs rule: insert_sort.induct)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons a xs)
-  have "mset (insert_sort (a # xs)) = mset (insert a (insert_sort(xs)))"  by simp
-
-  then show "mset (insert_sort (a # xs)) = mset (a # xs)" sorry
-qed
-*)
-
-
-
-
-
-
-
-
-
-
 fun insert_sort_tail:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
 insert_sort_tail_Nil : "insert_sort_tail [] accum  = accum" |
 insert_sort_tail_Cons: "insert_sort_tail (x#xs) accum  = insert_sort_tail (xs) (insert x accum)"
