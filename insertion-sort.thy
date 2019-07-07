@@ -6,7 +6,7 @@ declare[[names_short]]
 
 fun insert:: "nat \<Rightarrow> nat list \<Rightarrow> nat list" where
 insert_Nil: "insert x [] = [x]" |
-insert_Cons: "insert x (y#ys) = (if x \<le> y then (x#y#ys) else y#insert x ys)"
+insert_Cons: "insert x (y#ys) = (if x < y then (x#y#ys) else y#insert x ys)"
 
 value "insert 1 [2,4,10]"
 
@@ -16,35 +16,49 @@ insert_sort_Cons: "insert_sort (x#xs)  = insert x (insert_sort(xs))"
 
 value "insert_sort [2,4,10,0,3]"
 
-lemma sorted_accepts_insert : "\<lbrakk>sorted(y#ys); \<not> x \<le> y\<rbrakk> \<Longrightarrow> sorted (y#insert x ys)"
+
+lemma sorted_accepts_insert : "\<lbrakk>sorted(y#ys); \<not> x < y\<rbrakk> \<Longrightarrow> sorted (y#insert x ys)"
 proof(induction ys arbitrary: y rule: sorted.induct)
   case 1
   then show ?case by auto
 next
   case (2 x ys)
-  then show ?case by (metis insert_Cons le_cases sorted2)
+  then show ?case  by (metis insert_Cons leI less_imp_le_nat sorted2)
 qed
 
-lemma insert_output_sorted : "sorted(ys) \<Longrightarrow> sorted (insert x ys)"
+thm insert.induct
+
+lemma insert_output_sorted : "sorted(ys) \<Longrightarrow> sorted (insert y ys)"
 proof (induct ys rule: insert.induct)
   case (1 x)
   then show ?case by simp
 next
   case (2 x y ys)
   then show ?case
-  proof(cases " x \<le> y")
+  proof (cases "x < y" )
     case True
-    have "sorted (y#ys)" using "local.2.prems" by blast
-    also have "sorted (x#y#ys)" using "local.2.prems" True sorted2 by blast
-    then have "sorted (insert x (y # ys))"  by simp
-    then show "sorted (insert x (y # ys))" by assumption
+    {
+      have "sorted (insert x (y # ys)) \<equiv> sorted (x#y#ys)"  by (simp add: True)
+      also have "... \<equiv> ((\<forall>z \<in> set (y#ys). x \<le> z) \<and> sorted(y#ys))" using "local.2.prems" List.linorder_class.sorted.simps(2) by simp
+      ultimately have "sorted (insert x (y # ys)) \<equiv> ((\<forall>z \<in> set (y#ys). x \<le> z) \<and> sorted(y#ys))" by simp
+    }
+    moreover have "((\<forall>z \<in> set (y#ys). x \<le> z)) \<and> (sorted(y#ys))"
+    proof
+      show "((\<forall>z \<in> set (y#ys). x \<le> z))" using "local.2.prems" True by auto
+      show "(sorted(y#ys))" using "local.2.prems" by auto
+    qed
+    ultimately show "sorted (insert x (y # ys))" by simp
   next
     case False
-    have "sorted ys" using "local.2.prems" List.linorder_class.sorted.simps(2) by blast
-    also have "sorted (insert x ys)" by (simp add: "local.2.hyps" False calculation)
-    moreover have "sorted (y#insert x ys)" using "local.2.prems" False sorted_accepts_insert by blast
-    then have "sorted (insert x (y # ys))" by (simp add: False)
-    then show "sorted (insert x (y # ys))" by assumption
+    moreover{
+      have "sorted (insert x (y # ys)) \<equiv> sorted (y#insert x (ys))" by (simp add: False)
+    }
+
+    moreover {
+      have "sorted (y#insert x (ys))" using "local.2.prems" False sorted_accepts_insert by auto
+    }
+
+    ultimately show "sorted (insert x (y # ys))" by simp
   qed
 qed
 
