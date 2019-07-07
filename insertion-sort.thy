@@ -101,14 +101,36 @@ next
   qed
 qed
 
-theorem insert_sort_is_permutation_of_input: "mset (insert_sort xs) = mset xs" 
-proof(induct xs rule: insert_sort.induct)
+theorem insert_sort_is_permutation_of_input: "mset (insert_sort ys) = mset ys" 
+proof(induct ys rule: insert_sort.induct)
   case 1
   then show ?case by simp
 next
   case (2 x xs)
-  then show ?case by (simp add: insert_is_permutation_of_input)
+  have "mset (insert_sort (x # xs)) = mset (insert x (insert_sort(xs)))" by simp
+  also have "... =  mset(x#(insert_sort(xs)))" using  insert_is_permutation_of_input by simp
+  also have "... =  {#x#} + mset(insert_sort(xs))" by simp
+  also have "... =  {#x#} +  mset xs" using "local.2.hyps" by simp
+  also have "... =  mset (x # xs)" using "local.2.hyps" by simp
+  finally show "mset (insert_sort (x # xs)) = mset (x # xs)" by this
 qed
+
+
+
+
+(*
+insert_sort_Cons: "insert_sort (x#xs)  = insert x (insert_sort(xs))"
+
+proof(induct xs rule: insert_sort.induct)
+  case Nil
+  then show ?case by simp
+next
+  case (Cons a xs)
+  have "mset (insert_sort (a # xs)) = mset (insert a (insert_sort(xs)))"  by simp
+
+  then show "mset (insert_sort (a # xs)) = mset (a # xs)" sorry
+qed
+*)
 
 
 
