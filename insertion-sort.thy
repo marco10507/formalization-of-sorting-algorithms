@@ -35,20 +35,26 @@ next
   proof (cases "x < y")
     case True
     then show "sorted (insert x (y#ys))"
-    proof (simp add: True)
-      from True have "x \<le> y" by simp
-      moreover from "local.2.prems" calculation have "(\<forall>xa\<in>set ys. x \<le> xa)" by auto
-      moreover from "local.2.prems"(1) have "(\<forall>x\<in>set ys. y \<le> x)" by simp
-      moreover from "local.2.prems"(1) have "sorted ys" by simp
-      ultimately show "x \<le> y \<and> (\<forall>xa\<in>set ys. x \<le> xa) \<and> (\<forall>x\<in>set ys. y \<le> x) \<and> sorted ys" by blast
+    proof (simp only: True insert_Cons if_True [[simp_trace]])
+      show "sorted (x # y # ys)"
+      proof(simp)
+        from True have "x \<le> y" by simp
+        moreover from "local.2.prems" calculation have "(\<forall>xa\<in>set ys. x \<le> xa)" by auto
+        moreover from "local.2.prems"(1) have "(\<forall>x\<in>set ys. y \<le> x)" by simp
+        moreover from "local.2.prems"(1) have "sorted ys" by simp
+        ultimately show "x \<le> y \<and> (\<forall>xa\<in>set ys. x \<le> xa) \<and> (\<forall>x\<in>set ys. y \<le> x) \<and> sorted ys" by blast
+      qed
     qed
   next
     case False
     then show "sorted (insert x (y # ys))"
-    proof(simp del:List.linorder_class.sorted.simps add:False sorted3 "local.2.prems")
-      from False have "y \<le> x" by simp
-      moreover from "local.2.hyps" "local.2.prems" False have "sorted (insert x ys)"  by simp
-      ultimately show "y \<le> x \<and> sorted (insert x ys)" by blast
+    proof(simp only:False insert_Cons if_False [[simp_trace]])
+      show "sorted (y # insert x ys)"
+      proof(simp  del:List.linorder_class.sorted.simps add: False sorted3 "local.2.prems")
+        from False have "y \<le> x" by simp
+        moreover from "local.2.hyps" "local.2.prems" False have "sorted (insert x ys)"  by simp
+       ultimately show "y \<le> x \<and> sorted (insert x ys)" by blast
+      qed
     qed
   qed
 qed
@@ -56,13 +62,11 @@ qed
 theorem insert_sort_output_sorted : "sorted(insert_sort(ys))"
 proof (induct ys rule:insert_sort.induct)
   case 1
-  have "sorted []" by simp
-  also have "sorted (insert_sort [])" by simp
-  then show ?case by assumption
+  then show ?case by simp
 next
   case (2 x xs)
   show "sorted (insert_sort (x # xs))"
-  proof (simp)
+  proof (simp only: insert_sort_Cons)
      from "local.2.hyps" and insert_output_sorted show "sorted (insert x (insert_sort xs))" by simp
   qed
 qed
