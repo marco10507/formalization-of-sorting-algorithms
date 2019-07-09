@@ -74,7 +74,7 @@ qed
 lemma insert_is_permutation_of_input: "mset (insert y ys) = mset (y#ys)"
 proof(induct ys rule:insert.induct)
   case (1 x)
-  then show ?case by simp
+  show "mset (insert x []) = mset [x]" by simp
 next
   case (2 x y ys)
   then show ?case
@@ -94,7 +94,7 @@ qed
 theorem insert_sort_is_permutation_of_input: "mset (insert_sort ys) = mset ys" 
 proof(induct ys rule: insert_sort.induct)
   case 1
-  then show ?case by simp
+  then show "mset (insert_sort []) = mset []" by simp
 next
   case (2 x xs)
   have "mset (insert_sort (x # xs)) = mset (insert x (insert_sort(xs)))" by simp
