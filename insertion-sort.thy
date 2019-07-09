@@ -61,15 +61,10 @@ proof (induct ys rule:insert_sort.induct)
   then show ?case by assumption
 next
   case (2 x xs)
-  moreover{
-    have "sorted (insert_sort (x # xs)) \<equiv> sorted(insert x (insert_sort(xs)))" by simp
-  }
-
-  moreover {
-    have "sorted(insert x (insert_sort(xs)))" using  "local.2.hyps" insert_output_sorted by simp
-  }
-
-  ultimately show "sorted (insert_sort (x # xs))" by simp
+  show "sorted (insert_sort (x # xs))"
+  proof (simp)
+     from "local.2.hyps" and insert_output_sorted show "sorted (insert x (insert_sort xs))" by simp
+  qed
 qed
 
 lemma insert_is_permutation_of_input: "mset (insert y ys) = mset (y#ys)"
