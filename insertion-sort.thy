@@ -16,17 +16,14 @@ insert_sort_Cons: "insert_sort (x#xs)  = insert x (insert_sort(xs))"
 
 value "insert_sort [2,4,10,0,3]"
 
-
-lemma sorted_accepts_insert : "\<lbrakk>sorted(y#ys); \<not> x < y\<rbrakk> \<Longrightarrow> sorted (y#insert x ys)"
+lemma sorted3 : "\<lbrakk>sorted(y#ys); \<not> x < y\<rbrakk> \<Longrightarrow> sorted (y#insert x ys) = (y \<le> x \<and> sorted(insert x ys))"
 proof(induction ys arbitrary: y rule: sorted.induct)
   case 1
   then show ?case by auto
 next
   case (2 x ys)
-  then show ?case  by (metis insert_Cons leI less_imp_le_nat sorted2)
+  then show ?case using insert_Cons leI less_imp_le_nat sorted2 by metis
 qed
-
-thm insert.induct
 
 lemma insert_output_sorted : "sorted(ys) \<Longrightarrow> sorted (insert y ys)"
 proof (induct ys rule: insert.induct)
@@ -47,15 +44,12 @@ next
     qed
   next
     case False
-    moreover{
-      have "sorted (insert x (y # ys)) \<equiv> sorted (y#insert x (ys))" by (simp add: False)
-    }
-
-    moreover {
-      have "sorted (y#insert x (ys))" using "local.2.prems" False sorted_accepts_insert by auto
-    }
-
-    ultimately show "sorted (insert x (y # ys))" by simp
+    then show "sorted (insert x (y # ys))"
+    proof(simp del:List.linorder_class.sorted.simps add:False sorted3 "local.2.prems")
+      from False have "y \<le> x" by simp
+      moreover from "local.2.hyps" "local.2.prems" False have "sorted (insert x ys)"  by simp
+      ultimately show "y \<le> x \<and> sorted (insert x ys)" by blast
+    qed
   qed
 qed
 
