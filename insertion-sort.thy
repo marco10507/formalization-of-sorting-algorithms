@@ -35,19 +35,11 @@ proof (induct ys rule: insert.induct)
 next
   case (2 x y ys)
   then show ?case
-  proof (cases "x < y" )
+  proof (cases "x < y")
     case True
-    {
-      have "sorted (insert x (y # ys)) \<equiv> sorted (x#y#ys)"  by (simp add: True)
-      also have "... \<equiv> ((\<forall>z \<in> set (y#ys). x \<le> z) \<and> sorted(y#ys))" using "local.2.prems" List.linorder_class.sorted.simps(2) by simp
-      ultimately have "sorted (insert x (y # ys)) \<equiv> ((\<forall>z \<in> set (y#ys). x \<le> z) \<and> sorted(y#ys))" by simp
-    }
-    moreover have "((\<forall>z \<in> set (y#ys). x \<le> z)) \<and> (sorted(y#ys))"
-    proof
-      show "((\<forall>z \<in> set (y#ys). x \<le> z))" using "local.2.prems" True by auto
-      show "(sorted(y#ys))" using "local.2.prems" by auto
-    qed
-    ultimately show "sorted (insert x (y # ys))" by simp
+    have "sorted (insert x (y#ys)) \<equiv> sorted (x#y#ys)"  using True by simp
+    moreover have "sorted (x#y#ys)" using "local.2.prems" True less_imp_le_nat sorted2 by blast
+    ultimately show "sorted (insert x (y#ys))"  by simp
   next
     case False
     moreover{
