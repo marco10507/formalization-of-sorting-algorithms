@@ -37,9 +37,14 @@ next
   then show ?case
   proof (cases "x < y")
     case True
-    have "sorted (insert x (y#ys)) \<equiv> sorted (x#y#ys)"  using True by simp
-    moreover have "sorted (x#y#ys)" using "local.2.prems" True less_imp_le_nat sorted2 by blast
-    ultimately show "sorted (insert x (y#ys))"  by simp
+    then show "sorted (insert x (y#ys))"
+    proof (simp add: True)
+      from True have "x \<le> y" by simp
+      moreover from "local.2.prems" calculation have "(\<forall>xa\<in>set ys. x \<le> xa)" by auto
+      moreover from "local.2.prems"(1) have "(\<forall>x\<in>set ys. y \<le> x)" by simp
+      moreover from "local.2.prems"(1) have "sorted ys" by simp
+      ultimately show "x \<le> y \<and> (\<forall>xa\<in>set ys. x \<le> xa) \<and> (\<forall>x\<in>set ys. y \<le> x) \<and> sorted ys" by blast
+    qed
   next
     case False
     moreover{
