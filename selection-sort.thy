@@ -4,8 +4,10 @@ begin
 
 lemma min_membership: "m = Min(set (x#xs)) \<Longrightarrow> m \<in> set (x#xs)"
 proof(induct xs arbitrary: x m)
-  case Nil
-  then show ?case by simp
+  case Nil  
+  have "m = Min (set [x])" using Nil.prems by simp
+  also have "... \<in> set [x]" by simp
+  finally show "m \<in> set [x]" by this
 next
   case (Cons a xs)
    have "m = Min (set (x # a # xs))" using Cons.prems by simp
