@@ -53,7 +53,7 @@ next
       proof(simp  del:List.linorder_class.sorted.simps add: False sorted3 "local.2.prems")
         from False have "y \<le> x" by simp
         moreover from "local.2.hyps" "local.2.prems" False have "sorted (insert x ys)"  by simp
-       ultimately show "y \<le> x \<and> sorted (insert x ys)" by blast
+        ultimately show "y \<le> x \<and> sorted (insert x ys)" by blast
       qed
     qed
   qed
