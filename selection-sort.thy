@@ -21,8 +21,8 @@ proof(induct xs arbitrary: y x)
   have "length (remove1 y [x]) = length (remove1 x [x])" using Nil.prems by simp
   also have "length (remove1 x [x]) = length []" by simp
   also have "length [] < length [x]" by simp
-  finally have "length (remove1 y [x]) < length [x]" by this
-  then show "length (remove1 y [x]) < length [x]" by assumption
+  finally show "length (remove1 y [x]) < length [x]" by this
+next
 next
   case (Cons a xs)
   then show "length (remove1 y (x # a # xs)) < length (x # a # xs)"
@@ -36,10 +36,9 @@ next
   next
     case False
     have "length (remove1 y (x # a # xs)) = length (remove1 x (x # a # xs))" using Cons.prems False by simp
-    also have "length (remove1 x (x # a # xs)) = length (a # xs)" by simp
-    also have "length (a # xs) < length (x # a # xs)" by simp
-    finally have "length (remove1 y (x # a # xs)) < length (x # a # xs)" by this
-    then show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by assumption
+    also have "... = length (a # xs)" by simp
+    also have "... < length (x # a # xs)" by simp
+    finally show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by this
   qed
 qed
 
