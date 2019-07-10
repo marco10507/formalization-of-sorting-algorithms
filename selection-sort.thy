@@ -8,21 +8,9 @@ proof(induct xs arbitrary: x m)
   then show ?case by simp
 next
   case (Cons a xs)
-  then show "m \<in> set (x # a # xs)"
-  proof(cases "m = Min (set (a#xs))")
-    case True
-    have "m \<in> set (a# xs)" using Cons.hyps True by simp
-    moreover have "m \<in> set (x # a # xs)" using calculation by auto
-    then show "m \<in> set (x # a # xs)" by assumption
-  next
-    case False
-    have "m \<in> {Min ({x} \<union> set (a # xs))}" by (metis Cons.prems insertCI insert_is_Un list.simps(15))
-    moreover have "m \<notin> set (a # xs)" by (metis Cons.prems False List.finite_set Min_eqI Min_le insertI2 list.simps(15))
-    moreover have "m \<in> {Min ({x})}" by (metis (mono_tags, lifting) List.finite_set Min_in calculation(1) calculation(2) insert_iff insert_is_Un list.simps(15) set_empty singleton_iff)
-    moreover have "m \<in> {x}" using Min_singleton calculation by simp
-    moreover have  "m \<in> set (x # a # xs)" using calculation by simp
-    then show "m \<in> set (x # a # xs)" by assumption
-  qed
+   have "m = Min (set (x # a # xs))" using Cons.prems by simp
+   also have "... \<in> set (x # a # xs)"  using Min_in by blast
+   finally show "m \<in> set (x # a # xs)" by this
 qed
 
 lemma remove_member: "y \<in> set (x#xs) \<Longrightarrow> length (remove1 y (x#xs)) < length (x#xs)"
