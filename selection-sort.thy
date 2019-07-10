@@ -44,13 +44,29 @@ qed
 
 (*no tail-recursive*)
 function selection_sort:: "nat list \<Rightarrow> nat list" where
-"selection_sort [] = []" |
-"selection_sort (x#xs) = (let min = Min (set(x#xs)); rest = remove1 min (x#xs)  in min#selection_sort(rest))"
+selection_sort_Null:  "selection_sort [] = []" |
+selection_sort_Cons: "selection_sort (x#xs) = (let min = Min (set(x#xs)); rest = remove1 min (x#xs) in min#selection_sort(rest))"
 by pat_completeness auto
 termination by (meson "termination" in_measure min_membership remove_member wf_measure)
 
 value "selection_sort [2,4,10,0,0]"
 
+lemma sorted5: "\<lbrakk>minimum = Min (set (xs)); sorted(selection_sort(xs))\<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(xs))"
+proof -
+  assume a1: "minimum = Min (set xs)"
+  assume a2: "sorted (selection_sort xs)"
+  { 
+    assume "\<exists>n\<le>minimum. \<not> sorted (n # selection_sort xs)"
+    then have "selection_sort xs \<noteq> minimum # selection_sort (remove1 minimum xs)" using a2 by (metis (no_types) sorted2)
+    then have "sorted (minimum # selection_sort xs)" using a1 by (metis selection_sort.elims sorted1) 
+  }
+  then show "sorted (minimum # selection_sort xs)" by blast
+qed
+
+lemma sorted4: "\<lbrakk>minimum = Min (set (xs)); rest = remove1 minimum (xs); sorted(selection_sort(rest))\<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(rest))"  by (metis (no_types, hide_lams) List.finite_set Min.subset_imp le_trans list.distinct(1) selection_sort.elims set_empty set_remove1_subset sorted.simps(2) sorted1 sorted5)
+
+
+(*
 theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
 proof(induct xs rule:selection_sort.induct)
   case 1
@@ -59,12 +75,23 @@ next
   case (2 x xs)
   let ?min = "Min (set (x # xs))"
   let  ?rest = "remove1 ?min (x # xs)"
+  show "sorted (selection_sort (x # xs))"
+  proof(simp)
+    show "sorted (let min = Min (insert x (set xs)) in min # selection_sort (if min = x then xs else x # remove1 min xs))" sorry
+  qed
+qed
+*)
+(*
+
+1. sorted (let min = Min (insert x (set xs)) in min # selection_sort (if min = x then xs else x # remove1 min xs))
+1. sorted (let min = Min (insert x (set xs)) in min # selection_sort (if min = x then xs else x # remove1 min xs))
+
+   by (simp only: selection_sort_Cons sorted.simps)
   have "sorted (selection_sort ?rest)" using "2.hyps" by simp
   moreover have "sorted (?min#selection_sort ?rest)" by (smt List.finite_set Min_antimono calculation selection_sort.elims selection_sort.simps(1) set_empty set_remove1_subset sorted1 sorted2)
   moreover have "sorted (?min#selection_sort ((x # xs)))" by (metis List.finite_set Min_le calculation(2) min_membership selection_sort.simps(2) sorted2)
   moreover have "sorted (selection_sort ((x # xs)))" using calculation(3) sorted.simps(2) by simp
-  then show "sorted (selection_sort (x # xs))" by assumption
-qed
+*)
 
 lemma remove1_min: "\<lbrakk>e \<in> set (xs); rest = remove1 e xs\<rbrakk> \<Longrightarrow> mset xs = mset rest + {#e#}"
 proof(induct xs arbitrary: e rest)
@@ -94,6 +121,8 @@ next
     then show "mset (a # xs) = mset rest + {#e#}" by assumption
   qed
 qed
+
+
 
 theorem selection_sort_is_permutation_of_input: "mset (selection_sort(xs)) = mset xs"
 proof(induct xs rule: selection_sort.induct)
@@ -136,6 +165,7 @@ next
     then show "mset (selection_sort (x # xs)) = mset (x # xs)" by assumption
   qed
 qed
+
 
 (*tail-recursive version*)
 
