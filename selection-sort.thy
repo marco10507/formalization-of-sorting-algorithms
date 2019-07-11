@@ -42,6 +42,8 @@ next
   qed
 qed
 
+                                                                                                            
+
 (*no tail-recursive*)
 function selection_sort:: "nat list \<Rightarrow> nat list" where
 selection_sort_Null:  "selection_sort [] = []" |
@@ -51,18 +53,10 @@ termination by (meson "termination" in_measure min_membership remove_member wf_m
 
 value "selection_sort [2,4,10,0,0]"
 
-lemma sorted5: "\<lbrakk>minimum \<in> set (x#xs); minimum = Min (set (x#xs)); rest = remove1 minimum (x#xs)\<rbrakk> \<Longrightarrow> Ball (set rest) ((\<le>) minimum)" 
-  by (meson List.finite_set Min_le notin_set_remove1)
 
-lemma sorted4: "\<lbrakk>minimum \<in> set (x#xs); minimum = Min (set (x#xs)); rest = remove1 minimum (x#xs); sorted(selection_sort(rest))\<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(rest))"
-proof -
-  assume a1: "minimum = Min (set (x # xs))"
-  assume a2: "rest = remove1 minimum (x # xs)"
-  assume a3: "sorted (selection_sort rest)"
-  obtain nn :: "nat list \<Rightarrow> nat" and nns :: "nat list \<Rightarrow> nat list" where f4: "\<forall>ns. [] = ns \<or> nn ns # nns ns = ns" by (metis (no_types) min_list.cases)
-  then have "\<forall>ns n. nn (selection_sort (n # ns)) \<in> set (n # ns)" by (metis (no_types) "selection-sort.selection_sort_Cons" list.distinct(1) list.inject min_membership)
-  then show ?thesis using f4 a3 a2 a1 by (metis (no_types) "selection-sort.selection_sort_Null" min_membership sorted1 sorted2 sorted5)
-qed
+lemma sorted4: "\<lbrakk>minimum \<in> set (y # ys); set(rest) \<subseteq> (set (y # ys)); minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys); set(selection_sort(rest)) \<subseteq> set(rest) \<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(rest)) = (minimum  \<le> y \<and> sorted (selection_sort(rest)))"
+by (meson List.finite_set Min_le list.set_intros(1) sorted.simps(2) subset_eq) 
+
 
 theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
 proof(induct xs rule:selection_sort.induct)
@@ -70,15 +64,24 @@ proof(induct xs rule:selection_sort.induct)
   then show ?case by simp
 next
   case (2 x xs)
+  let ?minimum = "Min (set (x # xs))"
+  let ?rest = "remove1 ?minimum (x # xs)"
   show "sorted (selection_sort (x # xs))"
   proof(simp only:selection_sort_Cons Let_def)
-    let ?minimum = "Min (set (x # xs))"
-    let ?rest = "remove1 ?minimum (x # xs)"
     have "?minimum \<in> set (x # xs)" using min_membership by blast
-    moreover have "sorted(selection_sort(?rest))" using "2.hyps" by simp
-    ultimately show "sorted (?minimum # selection_sort (?rest))" using sorted4 by blast
+    moreover have "set(?rest) \<subseteq> (set (x # xs))" by auto
+    moreover have "?minimum = Min (set (x # xs))" by simp
+    moreover have "?rest = remove1 ?minimum (x # xs)" by simp
+    moreover have "set(selection_sort(?rest)) \<subseteq> set(?rest)" sorry
+    ultimately show "sorted (?minimum # selection_sort (?rest))"
+    proof (simp only:sorted4)
+      have "?minimum  \<le> x" by simp
+      moreover have "sorted(selection_sort(?rest))" using "2.hyps" by simp
+      ultimately show "?minimum  \<le> x \<and> sorted(selection_sort(?rest))" by blast
+    qed 
   qed
 qed
+
 
 
 lemma remove1_min: "\<lbrakk>e \<in> set (xs); rest = remove1 e xs\<rbrakk> \<Longrightarrow> mset xs = mset rest + {#e#}"
@@ -152,7 +155,7 @@ next
     }
     then show "mset (selection_sort (x # xs)) = mset (x # xs)" by assumption
   qed
-qed
+qed                                                                                                                                 
 
 
 (*tail-recursive version*)
