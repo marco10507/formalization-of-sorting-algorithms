@@ -123,25 +123,15 @@ qed
 
 lemma max_membership: "m = Max(set (x#xs)) \<Longrightarrow> m \<in> set (x#xs)"
 proof(induct xs arbitrary: x m)
-  case Nil
-  then show ?case by simp
+  case Nil  
+  have "m = Max (set [x])" using Nil.prems by simp
+  also have "... \<in> set [x]" by simp
+  finally show "m \<in> set [x]" by this
 next
   case (Cons a xs)
-  then show "m \<in> set (x # a # xs)"
-  proof(cases "m = Max (set (a#xs))")
-    case True
-    have "m \<in> set (a# xs)" using Cons.hyps True by simp
-    moreover have "m \<in> set (x # a # xs)" using calculation by auto
-    then show "m \<in> set (x # a # xs)" by assumption
-  next
-    case False
-    have "m \<in> {Max ({x} \<union> set (a # xs))}" by (metis Cons.prems insertCI insert_is_Un list.simps(15))
-    moreover have "m \<notin> set (a # xs)" by (metis Cons.prems False List.finite_set Max.in_idem Max.union insert_is_Un list.distinct(1) list.simps(15) set_empty sup.right_idem)
-    moreover have "m \<in> {Max ({x})}" by (metis (mono_tags, lifting) Cons.prems List.finite_set Max_in calculation(2) insert_iff list.simps(15) set_empty singleton_iff)
-    moreover have "m \<in> {x}"  using Max_singleton calculation(3) by blast
-    moreover have  "m \<in> set (x # a # xs)" using calculation by simp
-    then show "m \<in> set (x # a # xs)" by assumption
-  qed
+   have "m = Max (set (x # a # xs))" using Cons.prems by simp
+   also have "... \<in> set (x # a # xs)"  using Max_in by blast
+   finally show "m \<in> set (x # a # xs)" by this
 qed
 
 function tr_selection_sort:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
