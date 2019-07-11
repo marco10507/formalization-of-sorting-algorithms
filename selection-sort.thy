@@ -85,20 +85,7 @@ qed
 
 
 lemma sorted4: "\<lbrakk>minimum \<in># mset (y # ys); mset(rest) \<subseteq># (mset (y # ys)); minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys); mset(selection_sort(rest)) + {#minimum#} = mset(y # ys)\<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(rest)) = (minimum  \<le> y \<and> sorted (selection_sort(rest)))"
-proof -
-  assume a1: "minimum = Min (set (y # ys))"
-  assume a2: "rest = remove1 minimum (y # ys)"
-  have "\<forall>ns. (\<exists>n nsa. (\<not> sorted nsa \<or> (\<exists>na. \<not> (n::nat) \<le> na \<and> na \<in> set nsa)) \<and> n # nsa = ns) \<or> sorted ns" by (metis sorted.elims(3))
-  then obtain nns :: "nat list \<Rightarrow> nat list" and nn :: "nat list \<Rightarrow> nat" and nna :: "nat list \<Rightarrow> nat" where f3: "\<forall>ns. (\<not> sorted (nns ns) \<or> \<not> nn ns \<le> nna ns \<and> nna ns \<in> set (nns ns)) \<and> nn ns # nns ns = ns \<or> sorted ns" by metis
-  have f4: "\<forall>n. n \<notin> set (y # ys) \<or> minimum \<le> n"
-    using a1 Min_le by blast
-  then have f5: "minimum \<le> y"
-    by (meson list.set_intros(1))
-  then have "sorted (selection_sort rest) \<and> minimum = nn (selection_sort (y # ys)) \<and> selection_sort rest = nns (selection_sort (y # ys)) \<longrightarrow> sorted (selection_sort (y # ys)) \<and> minimum \<le> y"
-    using f4 f3 a2 by (metis (no_types) notin_set_remove1 properties_for_sort selection_sort_is_permutation_of_input set_sort)
-  then show ?thesis
-    using f5 f3 a2 a1 by (metis (no_types) "selection-sort.selection_sort_Cons" nth_Cons_0 remove1.simps(2) sorted.simps(2))
-qed
+  by (metis List.finite_set Min_le in_diffD list.set_intros(1) mset_remove1 selection_sort_is_permutation_of_input set_mset_mset sorted.simps(2))
 
 theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
 proof(induct xs rule:selection_sort.induct)
