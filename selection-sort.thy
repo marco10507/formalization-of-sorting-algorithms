@@ -83,9 +83,9 @@ next
   qed
 qed                                                                                                                                 
 
-
-lemma sorted4: "\<lbrakk>minimum \<in># mset (y # ys); mset(rest) \<subseteq># (mset (y # ys)); minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys); mset(selection_sort(rest)) + {#minimum#} = mset(y # ys)\<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(rest)) = (minimum  \<le> y \<and> sorted (selection_sort(rest)))"
-  by (metis List.finite_set Min_le in_diffD list.set_intros(1) mset_remove1 selection_sort_is_permutation_of_input set_mset_mset sorted.simps(2))
+lemma kkk:
+"\<lbrakk>minimum = Min (set (y # ys));rest = remove1 minimum (y # ys); mset(selection_sort(rest)) + {#minimum#} = mset(y # ys)\<rbrakk>
+\<Longrightarrow> Ball (set (selection_sort (rest))) ((\<le>) (minimum))" by (metis List.finite_set Min_le in_diffD mset_remove1 selection_sort_is_permutation_of_input set_mset_mset)
 
 theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
 proof(induct xs rule:selection_sort.induct)
@@ -97,30 +97,21 @@ next
   let ?rest = "remove1 ?minimum (x # xs)"
   show "sorted (selection_sort (x # xs))"
   proof(simp only:selection_sort_Cons Let_def)
-    have "?minimum \<in># mset (x # xs)" using min_membership by auto
-    moreover have "mset(?rest) \<subseteq># (mset (x # xs))" by auto
-    moreover have "?minimum = Min (set (x # xs))" by simp
+    have "?minimum = Min (set (x # xs))" by simp
     moreover have "?rest = remove1 ?minimum (x # xs)" by simp
-    moreover have "mset(selection_sort(?rest)) + {#?minimum#} = mset(x # xs)"using calculation(1) selection_sort_is_permutation_of_input by auto
     ultimately show "sorted (?minimum # selection_sort (?rest))"
-    proof (simp only:sorted4)
-      have "?minimum  \<le> x" by simp
-      moreover have "sorted(selection_sort(?rest))" using "2.hyps" by simp
-      ultimately show "?minimum  \<le> x \<and> sorted(selection_sort(?rest))" by blast
+    proof (simp only:Let_def sorted.simps)
+      show "Ball (set (selection_sort (?rest))) ((\<le>) (?minimum)) \<and> sorted (selection_sort (?rest))"
+      proof (rule conjI)
+        have p1: "mset(selection_sort(?rest)) + {#?minimum#} = mset(x # xs)" using min_membership selection_sort_is_permutation_of_input by fastforce
+        show "Ball (set (selection_sort (?rest))) ((\<le>) (?minimum))" using p1 by (simp add:kkk)
+      next
+        have "sorted (selection_sort (?rest))" using "2.hyps" by simp
+        from this show "sorted (selection_sort (?rest))" by assumption
+      qed
     qed 
   qed
 qed
-
-
-
-
-
-
-
-
-
-
-
 
 
 (*tail-recursive version*)
