@@ -41,8 +41,7 @@ next
     finally show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by this
   qed
 qed
- 
-                                                                                                            
+                                                                                                        
 (*no tail-recursive*)
 function selection_sort:: "nat list \<Rightarrow> nat list" where
 selection_sort_Null:  "selection_sort [] = []" |
@@ -51,7 +50,6 @@ by pat_completeness auto
 termination by (meson "termination" in_measure min_membership remove_member wf_measure)
 
 value "selection_sort [2,4,10,0,0]"
-
 
 theorem selection_sort_is_permutation_of_input: "mset (selection_sort(xs)) = mset xs"
 proof(induct xs rule: selection_sort.induct)
@@ -118,7 +116,6 @@ next
   qed
 qed
 
-
 (*tail-recursive version*)
 
 lemma max_membership: "m = Max(set (x#xs)) \<Longrightarrow> m \<in> set (x#xs)"
@@ -162,3 +159,5 @@ next
   case (Cons a xs)
   show "mset (tr_selection_sort (a # xs) ACCUM) = mset (a # xs) + mset ACCUM"  using Cons.prems(2) by blast
 qed
+
+
