@@ -41,9 +41,8 @@ next
     finally show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by this
   qed
 qed
-
+ 
                                                                                                             
-
 (*no tail-recursive*)
 function selection_sort:: "nat list \<Rightarrow> nat list" where
 selection_sort_Null:  "selection_sort [] = []" |
@@ -52,37 +51,6 @@ by pat_completeness auto
 termination by (meson "termination" in_measure min_membership remove_member wf_measure)
 
 value "selection_sort [2,4,10,0,0]"
-
-
-lemma sorted4: "\<lbrakk>minimum \<in> set (y # ys); set(rest) \<subseteq> (set (y # ys)); minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys); set(selection_sort(rest)) \<subseteq> set(rest) \<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(rest)) = (minimum  \<le> y \<and> sorted (selection_sort(rest)))"
-by (meson List.finite_set Min_le list.set_intros(1) sorted.simps(2) subset_eq) 
-
-
-theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
-proof(induct xs rule:selection_sort.induct)
-  case 1
-  then show ?case by simp
-next
-  case (2 x xs)
-  let ?minimum = "Min (set (x # xs))"
-  let ?rest = "remove1 ?minimum (x # xs)"
-  show "sorted (selection_sort (x # xs))"
-  proof(simp only:selection_sort_Cons Let_def)
-    have "?minimum \<in> set (x # xs)" using min_membership by blast
-    moreover have "set(?rest) \<subseteq> (set (x # xs))" by auto
-    moreover have "?minimum = Min (set (x # xs))" by simp
-    moreover have "?rest = remove1 ?minimum (x # xs)" by simp
-    moreover have "set(selection_sort(?rest)) \<subseteq> set(?rest)" sorry
-    ultimately show "sorted (?minimum # selection_sort (?rest))"
-    proof (simp only:sorted4)
-      have "?minimum  \<le> x" by simp
-      moreover have "sorted(selection_sort(?rest))" using "2.hyps" by simp
-      ultimately show "?minimum  \<le> x \<and> sorted(selection_sort(?rest))" by blast
-    qed 
-  qed
-qed
-
-
 
 lemma remove1_min: "\<lbrakk>e \<in> set (xs); rest = remove1 e xs\<rbrakk> \<Longrightarrow> mset xs = mset rest + {#e#}"
 proof(induct xs arbitrary: e rest)
@@ -156,6 +124,36 @@ next
     then show "mset (selection_sort (x # xs)) = mset (x # xs)" by assumption
   qed
 qed                                                                                                                                 
+
+lemma kkkk: "\<lbrakk>minimum \<in># mset (y # ys); minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys) \<rbrakk>\<Longrightarrow>   mset(rest) \<subseteq># (mset (y # ys))"  by simp
+
+lemma sorted4: "\<lbrakk>minimum \<in># mset (y # ys); mset(rest) \<subseteq># (mset (y # ys)); minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys); mset(selection_sort(rest)) \<subseteq># mset(y # ys)\<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(rest)) = (minimum  \<le> y \<and> sorted (selection_sort(rest)))"  by (metis List.finite_set Min_le list.set_intros(1) notin_set_remove1 selection_sort_is_permutation_of_input set_mset_mset sorted.simps(2))
+
+
+theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
+proof(induct xs rule:selection_sort.induct)
+  case 1
+  then show ?case by simp
+next
+  case (2 x xs)
+  let ?minimum = "Min (set (x # xs))"
+  let ?rest = "remove1 ?minimum (x # xs)"
+  show "sorted (selection_sort (x # xs))"
+  proof(simp only:selection_sort_Cons Let_def)
+    have "?minimum \<in># mset (x # xs)" using min_membership by auto
+    moreover have "mset(?rest) \<subseteq># (mset (x # xs))" by auto
+    moreover have "?minimum = Min (set (x # xs))" by simp
+    moreover have "?rest = remove1 ?minimum (x # xs)" by simp
+    moreover have "mset(selection_sort(?rest)) \<subseteq># mset(x # xs)" using selection_sort_is_permutation_of_input by simp
+    ultimately show "sorted (?minimum # selection_sort (?rest))"
+    proof (simp only:sorted4)
+      have "?minimum  \<le> x" by simp
+      moreover have "sorted(selection_sort(?rest))" using "2.hyps" by simp
+      ultimately show "?minimum  \<le> x \<and> sorted(selection_sort(?rest))" by blast
+    qed 
+  qed
+qed
+
 
 
 (*tail-recursive version*)
