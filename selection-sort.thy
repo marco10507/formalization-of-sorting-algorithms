@@ -151,26 +151,14 @@ proof(induct xs arbitrary: ACCUM rule:tr_selection_sort.induct)
   then show ?case  by (simp add: sorted01)
 next
   case (2 v va zs)
-  let ?max = "Max (set (v # va))"
-  let ?rest = "remove1 ?max (v # va)"
-  have "sorted (ACCUM)" using "2.prems"(1) by simp
-  moreover have " \<forall>A e. A \<in> set ACCUM \<and> e \<in> set (?max # zs) \<and> e \<le> A" using "2.prems"(2) by simp
-  moreover have "sorted (tr_selection_sort (?max # zs) ACCUM)" using 2(1) calculation by simp
-  moreover have "sorted (tr_selection_sort (zs) (?max#ACCUM))"  using calculation by blast
-  moreover have "sorted (tr_selection_sort (zs) (ACCUM))" using calculation by blast
-  then show "sorted (tr_selection_sort zs ACCUM)"  by assumption
+  then show "sorted (tr_selection_sort zs ACCUM)"  by (simp add: sorted01)
 qed
 
 theorem tr_selection_sort_is_permutation_of_input: "\<lbrakk>sorted (ACCUM); \<forall>A e. A \<in> (set ACCUM) \<and> e \<in> set xs \<and> e \<le> A\<rbrakk>  \<Longrightarrow> mset (tr_selection_sort xs ACCUM) = mset xs + mset ACCUM"
 proof(induct xs arbitrary: ACCUM)
   case Nil
-  then show ?case by simp
+  show ?case by simp
 next
   case (Cons a xs)
-  moreover have  "mset xs + {#a#} + mset ACCUM = mset xs + {#a#} + mset ACCUM" by simp
-  moreover have  "mset xs + {#a#} + mset ACCUM = mset (a # xs) + mset ACCUM" by simp
-  moreover have  "(mset xs + mset ACCUM) + {#a#} = mset (a # xs) + mset ACCUM" by simp
-  moreover have  "(mset (tr_selection_sort xs ACCUM)) + {#a#} = mset (a # xs) + mset ACCUM" using calculation by blast
-  moreover have  "(mset (tr_selection_sort (a#xs) ACCUM)) = mset (a # xs) + mset ACCUM" using calculation by blast
-  then show "mset (tr_selection_sort (a # xs) ACCUM) = mset (a # xs) + mset ACCUM" by assumption
+  show "mset (tr_selection_sort (a # xs) ACCUM) = mset (a # xs) + mset ACCUM"  using Cons.prems(2) by blast
 qed
