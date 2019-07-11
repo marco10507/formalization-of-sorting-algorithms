@@ -74,24 +74,22 @@ next
     case False
     have c1: "mset (selection_sort (x # xs)) = mset( Min (set (x # xs)) #selection_sort(remove1 ( Min (set (x # xs)) ) (x # xs)))" by (metis "selection-sort.selection_sort_Cons")
     also have c2:"... = {#Min (set (x # xs))#} +  mset (selection_sort(remove1 ( Min (set (x # xs)) ) (x # xs)))" by simp
-    also have c3: "... = {#Min (set (x # xs))#} +  mset (remove1 (Min (set (x # xs))) (x # xs))" by (simp add: "2.hyps")
+    also have c3:"... = {#Min (set (x # xs))#} +  mset (remove1 (Min (set (x # xs))) (x # xs))" by (simp add: "2.hyps")
     also have c4:"... = {#Min (set (x # xs))#} + mset (x#remove1 (Min (set (x # xs))) (xs))" using False by auto
-    also have c5: "... = ({#Min (set (x # xs))#} + mset (remove1 (Min (set (x # xs))) (xs))) + {#x#}" using False by auto
-    also have c6: "... = mset (xs) + {#x#}" using  IH add.right_neutral c2 c4 insert_DiffM min_membership mset.simps(2) mset_remove1 set_mset_mset union_mset_add_mset_right  by metis
-    also have c7: "... = mset (x # xs)" by simp
+    also have c5:"... = ({#Min (set (x # xs))#} + mset (remove1 (Min (set (x # xs))) (xs))) + {#x#}" using False by auto
+    also have c6:"... = mset (xs) + {#x#}" using  IH add.right_neutral c2 c4 insert_DiffM min_membership mset.simps(2) mset_remove1 set_mset_mset union_mset_add_mset_right  by metis
+    also have c7:"... = mset (x # xs)" by simp
     finally show "mset (selection_sort (x # xs)) = mset (x # xs)" by this
   qed
 qed                                                                                                                                 
 
-lemma kk2: "\<lbrakk>minimum = Min (set (y # ys));rest = remove1 minimum (y # ys)\<rbrakk> \<Longrightarrow> mset(rest) + {#minimum#} = mset(y # ys)" sorry
-
-
-lemma kkk:"\<lbrakk>minimum = Min (set (y # ys));rest = remove1 minimum (y # ys); mset(selection_sort(rest)) + {#minimum#} = mset(y # ys)\<rbrakk> \<Longrightarrow> Ball (set (selection_sort (rest))) ((\<le>) (minimum))"
+lemma rest_is_permutation:"\<lbrakk>minimum = Min (set (y # ys));rest = remove1 minimum (y # ys); mset(selection_sort(rest)) + {#minimum#} = mset(y # ys)\<rbrakk> \<Longrightarrow> Ball (set (selection_sort (rest))) ((\<le>) (minimum))"
 proof -
   assume a1: "minimum = Min (set (y # ys))"
-  assume "rest = remove1 minimum (y # ys)"
-  then have "\<forall>n. minimum \<le> n \<or> n \<notin> set (selection_sort rest)" using a1 by (metis List.finite_set eq_Min_iff list.distinct(1) selection_sort_is_permutation_of_input set_empty set_mset_mset set_remove1_subset subsetCE)
-  then show ?thesis by metis
+  assume a2: "rest = remove1 minimum (y # ys)"
+  assume a3:  "mset(selection_sort(rest)) + {#minimum#} = mset(y # ys)"
+  have "\<forall>n. minimum \<le> n \<or> n \<notin># mset (selection_sort rest)" using a1 a2  by (metis List.finite_set Min_le in_diffD mset_remove1 selection_sort_is_permutation_of_input set_mset_mset)
+  then show "Ball (set (selection_sort rest)) ((\<le>) minimum)"  by auto
 qed
   
 theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
@@ -111,7 +109,7 @@ next
       show "Ball (set (selection_sort (?rest))) ((\<le>) (?minimum)) \<and> sorted (selection_sort (?rest))"
       proof (rule conjI)
         have p1: "mset(selection_sort(?rest)) + {#?minimum#} = mset(x # xs)" using min_membership selection_sort_is_permutation_of_input by fastforce
-        show "Ball (set (selection_sort (?rest))) ((\<le>) (?minimum))" using p1 by (simp add:kkk)
+        show "Ball (set (selection_sort (?rest))) ((\<le>) (?minimum))" using p1 by (simp add:rest_is_permutation)
       next
         have "sorted (selection_sort (?rest))" using "2.hyps" by simp
         from this show "sorted (selection_sort (?rest))" by assumption
