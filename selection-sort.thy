@@ -83,10 +83,17 @@ next
   qed
 qed                                                                                                                                 
 
-lemma kkk:
-"\<lbrakk>minimum = Min (set (y # ys));rest = remove1 minimum (y # ys); mset(selection_sort(rest)) + {#minimum#} = mset(y # ys)\<rbrakk>
-\<Longrightarrow> Ball (set (selection_sort (rest))) ((\<le>) (minimum))" by (metis List.finite_set Min_le in_diffD mset_remove1 selection_sort_is_permutation_of_input set_mset_mset)
+lemma kk2: "\<lbrakk>minimum = Min (set (y # ys));rest = remove1 minimum (y # ys)\<rbrakk> \<Longrightarrow> mset(rest) + {#minimum#} = mset(y # ys)" sorry
 
+
+lemma kkk:"\<lbrakk>minimum = Min (set (y # ys));rest = remove1 minimum (y # ys); mset(selection_sort(rest)) + {#minimum#} = mset(y # ys)\<rbrakk> \<Longrightarrow> Ball (set (selection_sort (rest))) ((\<le>) (minimum))"
+proof -
+  assume a1: "minimum = Min (set (y # ys))"
+  assume "rest = remove1 minimum (y # ys)"
+  then have "\<forall>n. minimum \<le> n \<or> n \<notin> set (selection_sort rest)" using a1 by (metis List.finite_set eq_Min_iff list.distinct(1) selection_sort_is_permutation_of_input set_empty set_mset_mset set_remove1_subset subsetCE)
+  then show ?thesis by metis
+qed
+  
 theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
 proof(induct xs rule:selection_sort.induct)
   case 1
