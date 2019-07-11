@@ -52,34 +52,6 @@ termination by (meson "termination" in_measure min_membership remove_member wf_m
 
 value "selection_sort [2,4,10,0,0]"
 
-lemma remove1_min: "\<lbrakk>e \<in> set (xs); rest = remove1 e xs\<rbrakk> \<Longrightarrow> mset xs = mset rest + {#e#}"
-proof(induct xs arbitrary: e rest)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons a xs)
-  then show "mset (a # xs) = mset rest + {#e#}"
-  proof (cases "e = a")
-    case True
-    have "rest = xs" using Cons.prems(2) True  by simp
-    moreover have "mset xs = mset xs " by simp
-    moreover have "mset xs + {#a#} = mset xs + {#a#}" by simp
-    moreover have "mset xs + {#a#} = mset xs + {#e#}" using True  by simp
-    moreover have "mset (a # xs) = mset rest + {#e#}" using True calculation(1) by simp
-    then show "mset (a # xs) = mset rest + {#e#}" by assumption
-  next
-    case False
-    have "e \<in> set xs" using Cons.prems(1) False by simp
-    moreover have "rest = a # remove1 e xs" using Cons.prems(2) False  by simp
-    moreover have "mset (remove1 e xs) = mset xs - {#e#}"  by simp
-    moreover have " {#a#} +  mset xs - {#e#} = mset (a # remove1 e xs)"  using calculation(1) by simp
-    moreover have " {#a#} +  mset xs - {#e#} + {#e#} = mset (a # remove1 e xs) + {#e#}" using calculation by simp
-    moreover have " {#a#} +  mset xs = mset (a # remove1 e xs) + {#e#}" using calculation by simp
-    moreover have " mset (a # xs) = mset (a # remove1 e xs) + {#e#}" using calculation by simp
-    moreover have " mset (a # xs) = mset (rest) + {#e#}" using calculation(2) calculation(7) by simp
-    then show "mset (a # xs) = mset rest + {#e#}" by assumption
-  qed
-qed
 
 theorem selection_sort_is_permutation_of_input: "mset (selection_sort(xs)) = mset xs"
 proof(induct xs rule: selection_sort.induct)
@@ -101,22 +73,14 @@ next
     finally show "mset (selection_sort (x # xs)) = mset (x # xs)" by this
   next
     case False
-    have min: "?min = Min (set (xs))" by (metis False List.finite_set Min_eqI Min_le list.set_intros(2) min_membership set_ConsD) 
-    moreover have rest:"?rest = x#remove1 ?min xs" using False by simp
-    moreover have remove1_simp: "mset xs = mset (remove1 ?min xs) + {#?min#}" by (meson False min_membership remove1_min set_ConsD)
-
-    moreover{
-      have "mset ?rest = mset ?rest"  by simp
-      moreover have "mset ?rest + {#?min#} = mset ?rest + {#?min#}"  by simp 
-      moreover have "mset ?rest + {#?min#} = mset (x#remove1 ?min xs) + {#?min#}" using rest by simp
-      moreover have "mset ?rest + {#?min#} = (mset (remove1 ?min xs) + {#?min#}) + {#x#}" using calculation by simp
-      moreover have "mset ?rest + {#?min#} = (mset (xs)) + {#x#}" using remove1_simp by simp
-      moreover have "mset ?rest + {#?min#} = mset (x # xs)" using calculation by simp
-      moreover have "mset (selection_sort ?rest) + {#?min#} = mset (x # xs)" using IH calculation by simp
-      moreover have "mset (?min#selection_sort ?rest) = mset (x # xs)" using calculation by simp
-      moreover have "mset (selection_sort (x # xs)) = mset (x # xs)" using calculation selection_sort.simps(2) by metis
-    }
-    then show "mset (selection_sort (x # xs)) = mset (x # xs)" by assumption
+    have c1: "mset (selection_sort (x # xs)) = mset( Min (set (x # xs)) #selection_sort(remove1 ( Min (set (x # xs)) ) (x # xs)))" by (metis "selection-sort.selection_sort_Cons")
+    also have c2:"... = {#Min (set (x # xs))#} +  mset (selection_sort(remove1 ( Min (set (x # xs)) ) (x # xs)))" by simp
+    also have c3: "... = {#Min (set (x # xs))#} +  mset (remove1 (Min (set (x # xs))) (x # xs))" by (simp add: "2.hyps")
+    also have c4:"... = {#Min (set (x # xs))#} + mset (x#remove1 (Min (set (x # xs))) (xs))" using False by auto
+    also have c5: "... = ({#Min (set (x # xs))#} + mset (remove1 (Min (set (x # xs))) (xs))) + {#x#}" using False by auto
+    also have c6: "... = mset (xs) + {#x#}" using  IH add.right_neutral c2 c4 insert_DiffM min_membership mset.simps(2) mset_remove1 set_mset_mset union_mset_add_mset_right  by metis
+    also have c7: "... = mset (x # xs)" by simp
+    finally show "mset (selection_sort (x # xs)) = mset (x # xs)" by this
   qed
 qed                                                                                                                                 
 
