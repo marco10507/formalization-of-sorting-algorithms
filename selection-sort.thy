@@ -51,21 +51,17 @@ termination by (meson "termination" in_measure min_membership remove_member wf_m
 
 value "selection_sort [2,4,10,0,0]"
 
-lemma sorted5: "\<lbrakk>minimum \<in> set (x#xs); minimum = Min (set (x#xs)); rest = remove1 minimum (x#xs)\<rbrakk> \<Longrightarrow> Ball (set rest) ((\<le>) minimum)" sledgehammer
+lemma sorted5: "\<lbrakk>minimum \<in> set (x#xs); minimum = Min (set (x#xs)); rest = remove1 minimum (x#xs)\<rbrakk> \<Longrightarrow> Ball (set rest) ((\<le>) minimum)" 
   by (meson List.finite_set Min_le notin_set_remove1)
 
-lemma sorted4: "\<lbrakk> minimum \<in> set (x#xs); minimum = Min (set (x#xs)); rest = remove1 minimum (x#xs); sorted(selection_sort(rest))\<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(rest))"
+lemma sorted4: "\<lbrakk>minimum \<in> set (x#xs); minimum = Min (set (x#xs)); rest = remove1 minimum (x#xs); sorted(selection_sort(rest))\<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(rest))"
 proof -
-assume a1: "minimum = Min (set (x # xs))"
-assume a2: "rest = remove1 minimum (x # xs)"
+  assume a1: "minimum = Min (set (x # xs))"
+  assume a2: "rest = remove1 minimum (x # xs)"
   assume a3: "sorted (selection_sort rest)"
-  obtain nn :: "nat list \<Rightarrow> nat" and nns :: "nat list \<Rightarrow> nat list" where
-    f4: "\<forall>ns. [] = ns \<or> nn ns # nns ns = ns"
-    by (metis (no_types) min_list.cases)
-  then have "\<forall>ns n. nn (selection_sort (n # ns)) \<in> set (n # ns)"
-    by (metis (no_types) "selection-sort.selection_sort_Cons" list.distinct(1) list.inject min_membership)
-  then show ?thesis
-    using f4 a3 a2 a1 by (metis (no_types) "selection-sort.selection_sort_Null" min_membership sorted1 sorted2 sorted5)
+  obtain nn :: "nat list \<Rightarrow> nat" and nns :: "nat list \<Rightarrow> nat list" where f4: "\<forall>ns. [] = ns \<or> nn ns # nns ns = ns" by (metis (no_types) min_list.cases)
+  then have "\<forall>ns n. nn (selection_sort (n # ns)) \<in> set (n # ns)" by (metis (no_types) "selection-sort.selection_sort_Cons" list.distinct(1) list.inject min_membership)
+  then show ?thesis using f4 a3 a2 a1 by (metis (no_types) "selection-sort.selection_sort_Null" min_membership sorted1 sorted2 sorted5)
 qed
 
 theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
