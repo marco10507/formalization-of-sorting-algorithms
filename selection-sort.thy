@@ -47,7 +47,7 @@ qed
 function selection_sort:: "nat list \<Rightarrow> nat list" where
 selection_sort_Null:  "selection_sort [] = []" |
 selection_sort_Cons: "selection_sort (x#xs) = (let min = Min (set(x#xs)); rest = remove1 min (x#xs) in min#selection_sort(rest))"
-by pat_completeness auto
+by pat_completeness auto                   
 termination by (meson "termination" in_measure min_membership remove_member wf_measure)
 
 value "selection_sort [2,4,10,0,0]"
@@ -81,8 +81,6 @@ next
   qed
 qed
 
-
-
 theorem selection_sort_is_permutation_of_input: "mset (selection_sort(xs)) = mset xs"
 proof(induct xs rule: selection_sort.induct)
 case 1
@@ -95,15 +93,12 @@ next
   then show "mset (selection_sort (x # xs)) = mset (x # xs)"
   proof(cases "?min = x")
     case True
-    have "?rest = xs" using True by simp
-    moreover have "mset (selection_sort ?rest) = mset ?rest" using IH by simp
-    moreover have "mset (selection_sort ?rest) + {#?min#} = mset ?rest + {#?min#}" using True calculation by simp
-    moreover have "mset (?min#selection_sort ?rest) = mset ?rest + {#?min#}" using True calculation by simp
-    moreover have "mset (x#selection_sort xs) = mset ?rest + {#?min#}" using True calculation by simp
-    moreover have "mset (selection_sort (x#xs)) = mset ?rest + {#?min#}" using True calculation by simp
-    moreover have "mset (selection_sort (x#xs)) = mset xs + {#x#}" using True calculation by simp
-    moreover have "mset (selection_sort (x#xs)) = mset (x#xs)" using True calculation by simp
-    then show "mset (selection_sort (x # xs)) = mset (x # xs)" by assumption
+    have "mset (selection_sort (x # xs)) = mset(?min#selection_sort(?rest))" by (metis "selection-sort.selection_sort_Cons")
+    also have "... = mset(x#selection_sort(xs))" using True by simp
+    also have "... = {#x#}  + mset(selection_sort(xs))" by simp
+    also have "... = {#x#}  + mset(xs)" using IH True by simp
+    also have "... = mset (x#xs)" by simp
+    finally show "mset (selection_sort (x # xs)) = mset (x # xs)" by this
   next
     case False
     have min: "?min = Min (set (xs))" by (metis False List.finite_set Min_eqI Min_le list.set_intros(2) min_membership set_ConsD) 
