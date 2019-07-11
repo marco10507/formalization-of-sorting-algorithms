@@ -84,7 +84,7 @@ next
 qed                                                                                                                                 
 
 
-lemma sorted4: "\<lbrakk>minimum \<in># mset (y # ys); mset(rest) \<subseteq># (mset (y # ys)); minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys); mset(selection_sort(rest)) \<subseteq># mset(y # ys)\<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(rest)) = (minimum  \<le> y \<and> sorted (selection_sort(rest)))" sledgehammer
+lemma sorted4: "\<lbrakk>minimum \<in># mset (y # ys); mset(rest) \<subseteq># (mset (y # ys)); minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys); mset(selection_sort(rest)) + {#minimum#} = mset(y # ys)\<rbrakk> \<Longrightarrow> sorted(minimum#selection_sort(rest)) = (minimum  \<le> y \<and> sorted (selection_sort(rest)))"
 proof -
   assume a1: "minimum = Min (set (y # ys))"
   assume a2: "rest = remove1 minimum (y # ys)"
@@ -114,7 +114,7 @@ next
     moreover have "mset(?rest) \<subseteq># (mset (x # xs))" by auto
     moreover have "?minimum = Min (set (x # xs))" by simp
     moreover have "?rest = remove1 ?minimum (x # xs)" by simp
-    moreover have "mset(selection_sort(?rest)) \<subseteq># mset(x # xs)" using selection_sort_is_permutation_of_input by simp
+    moreover have "mset(selection_sort(?rest)) + {#?minimum#} = mset(x # xs)"using calculation(1) selection_sort_is_permutation_of_input by auto
     ultimately show "sorted (?minimum # selection_sort (?rest))"
     proof (simp only:sorted4)
       have "?minimum  \<le> x" by simp
