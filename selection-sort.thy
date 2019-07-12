@@ -45,7 +45,7 @@ qed
 (*no tail-recursive*)
 function selection_sort:: "nat list \<Rightarrow> nat list" where
 selection_sort_Null:  "selection_sort [] = []" |
-selection_sort_Cons: "selection_sort (x#xs) = (let min = Min (set(x#xs)); rest = remove1 min (x#xs) in min#selection_sort(rest))"
+selection_sort_Cons: "selection_sort (x#xs) = (let minimum = Min (set(x#xs)); rest = remove1 minimum (x#xs) in minimum#selection_sort(rest))"
 by pat_completeness auto       
 termination
 proof (relation "measure (\<lambda>(xs). length xs)")
