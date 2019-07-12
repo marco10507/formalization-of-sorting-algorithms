@@ -62,8 +62,6 @@ next
   qed
 qed
 
-
-
 value "selection_sort [2,4,10,0,0]"
 
 theorem selection_sort_is_permutation_of_input: "mset (selection_sort(xs)) = mset xs"
@@ -151,9 +149,22 @@ function tr_selection_sort:: "nat list \<Rightarrow> nat list \<Rightarrow> nat 
 "tr_selection_sort (x#xs) accum = (let max = Max (set(x#xs)); rest =remove1 max (x#xs) in tr_selection_sort(rest) (max#accum))"
 by pat_completeness auto
 termination
-apply(relation "measure (\<lambda>(xs,accum). size xs)")
-apply simp
-by (metis case_prod_conv in_measure max_membership remove_member)
+proof(relation "measure (\<lambda>(xs, accum). size xs)")
+  show "wf (measure (\<lambda>(xs, accum). length xs))"  by simp
+next
+  fix maximum x ::nat
+  fix rest xs accum:: "nat list"
+  assume a1: "maximum =  Max (set (x # xs))"
+  assume a2: "rest = remove1 maximum (x # xs)"
+  show "((rest, maximum # accum), x # xs, accum) \<in> measure (\<lambda>(xs, accum). length xs)"
+  proof (simp only: in_measure)
+    show "(case (rest, maximum # accum) of (xs, accum) \<Rightarrow> length xs) < (case (x # xs, accum) of (xs, accum) \<Rightarrow> length xs)" 
+    proof(simp only: prod.case)
+      have p1: "maximum \<in> set (x#xs)" using a1 by (simp only: max_membership)
+      show "length rest < length (x # xs)" using a2 p1 by (simp only:remove_member)
+    qed
+  qed
+qed
 
 value "tr_selection_sort [2,4,10,0,0] []"
 
