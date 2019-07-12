@@ -94,13 +94,38 @@ next
   qed
 qed                                                                                                                                 
 
-lemma rest_is_permutation:"\<lbrakk>minimum = Min (set (y # ys));rest = remove1 minimum (y # ys); mset(selection_sort(rest)) + {#minimum#} = mset(y # ys)\<rbrakk> \<Longrightarrow> Ball (set (selection_sort (rest))) ((\<le>) (minimum))"
+lemma rest_is_permutation_1:"\<lbrakk>minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys)\<rbrakk> \<Longrightarrow> mset(selection_sort(rest)) = mset(y # ys) - {#minimum#}"
+proof(induct ys arbitrary: y minimum rest  rule: selection_sort.induct)
+  case 1
+  then show ?case by simp
+next
+  case (2 x xs)
+  show "mset (selection_sort rest) = mset (y # x # xs) - {#minimum#}"
+  proof(cases " Min (set (y # x # xs))  = y")
+    case True
+    have "mset (selection_sort rest) = mset (selection_sort (remove1  y  (y # x # xs)))"  using "2.prems"(1) "2.prems"(2) True by simp
+    also have "... =  mset (minimum#selection_sort (x # xs)) - {#minimum#}" by simp  
+    also have "... =  {#minimum#} + mset (selection_sort (x # xs)) - {#minimum#}"  by simp
+    also have "... =  {#minimum#} + mset (x # xs) - {#minimum#}"  using selection_sort_is_permutation_of_input by presburger
+    also have "... =  {#y#} + mset (x # xs) - {#minimum#}"  using "2.prems"(1) True by simp
+    also have "... =   mset (y#x#xs) - {#minimum#}"  using "2.prems"(1) True by simp
+    finally show "mset (selection_sort rest) = mset (y # x # xs) - {#minimum#}" by this
+  next
+    case False
+    then show ?thesis sorry
+  qed
+qed
+
+
+
+lemma rest_is_permutation:"\<lbrakk>minimum = Min (set (y # ys));rest = remove1 minimum (y # ys); mset(selection_sort(rest))  = mset(y # ys) - {#minimum#}\<rbrakk> \<Longrightarrow> Ball (set (selection_sort (rest))) ((\<le>) (minimum))"
 proof -
   assume a1: "minimum = Min (set (y # ys))"
-  assume a2: "rest = remove1 minimum (y # ys)"
-  assume a3:  "mset(selection_sort(rest)) + {#minimum#} = mset(y # ys)"
-  have "\<forall>n. minimum \<le> n \<or> n \<notin># mset (selection_sort rest)" using a1 a2  by (metis List.finite_set Min_le in_diffD mset_remove1 selection_sort_is_permutation_of_input set_mset_mset)
-  then show "Ball (set (selection_sort rest)) ((\<le>) minimum)"  by auto
+  assume "rest = remove1 minimum (y # ys)"
+  then have "\<forall>n. minimum \<le> n \<or> n \<notin> set (selection_sort rest)"
+    using a1 by (metis List.finite_set Min_le selection_sort_is_permutation_of_input set_mset_mset set_remove1_subset subsetCE)
+  then show ?thesis
+    by metis
 qed
   
 theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
@@ -119,7 +144,7 @@ next
     proof (simp only:Let_def sorted.simps)
       show "Ball (set (selection_sort (?rest))) ((\<le>) (?minimum)) \<and> sorted (selection_sort (?rest))"
       proof (rule conjI)
-        have p1: "mset(selection_sort(?rest)) + {#?minimum#} = mset(x # xs)" using min_membership selection_sort_is_permutation_of_input by fastforce
+        have p1: "mset(selection_sort(?rest)) = mset(x # xs) - {#?minimum#}" by (simp only: rest_is_permutation_1)
         show "Ball (set (selection_sort (?rest))) ((\<le>) (?minimum))" using p1 by (simp add:rest_is_permutation)
       next
         have "sorted (selection_sort (?rest))" using "2.hyps" by simp
@@ -128,6 +153,23 @@ next
     qed 
   qed
 qed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 (*tail-recursive version*)
 
