@@ -94,19 +94,24 @@ next
   qed
 qed                        
 
-lemma ff: "\<lbrakk>minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys)\<rbrakk> \<Longrightarrow> mset(rest) = mset(y # ys) - {#minimum#}" using [[simp_trace]] by simp
-
-lemma rest_is_permutation_1:"\<lbrakk>minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys)\<rbrakk> \<Longrightarrow> mset(selection_sort(rest)) = mset(y # ys) - {#minimum#}"
-proof(induct ys arbitrary: y minimum rest  rule: selection_sort.induct)
-  case 1
+lemma ff: "\<lbrakk>minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys)\<rbrakk> \<Longrightarrow> mset(rest) = mset(y # ys) - {#minimum#}"
+proof(induct ys arbitrary: y)
+  case Nil
   then show ?case by simp
 next
-  case (2 x xs)
-    have c1: "mset (selection_sort rest) = mset (selection_sort (remove1  (Min (set (y # x # xs)))  (y # x # xs)))"  using "2.prems"(1) "2.prems"(2) by simp
-    also have c2:"... = mset  (remove1  (Min (set (y # x # xs)))  (y #x # xs))" using selection_sort_is_permutation_of_input by blast
-    also have c2:"... = mset  (y # x # xs) - {#Min (set (y # x # xs))#}" by (simp only:ff)
-    also have "... =  mset (y # x # xs) - {#minimum#}" using "2.prems"(1) by simp
-    finally show "mset (selection_sort rest) = mset (y # x # xs) - {#minimum#}" by this
+  case (Cons a ys)
+  then show ?case sorry
+qed
+
+lemma rest_is_permutation_1:"\<lbrakk>minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys)\<rbrakk> \<Longrightarrow> mset(selection_sort(rest)) = mset(y # ys) - {#minimum#}"
+proof -
+  assume a1: "minimum = Min (set (y # ys))"
+  assume a2: "rest = remove1 minimum (y # ys)"
+  have c1: "mset (selection_sort rest) = mset (selection_sort (remove1  (Min (set (y # ys)))  (y # ys)))" using a1 a2 by simp
+  also have c2:"... = mset  (remove1  (Min (set (y # ys)))  (y #ys))" using selection_sort_is_permutation_of_input by blast
+  also have c2:"... = mset  (y # ys) - {#Min (set (y # ys))#}" by (simp only:ff)
+  also have "... =  mset (y # ys) - {#minimum#}" using a1  by simp
+  finally show "mset (selection_sort rest) = mset (y # ys) - {#minimum#}" by this
 qed
 
 lemma rest_is_permutation:"\<lbrakk>minimum = Min (set (y # ys));rest = remove1 minimum (y # ys); mset(selection_sort(rest))  = mset(y # ys) - {#minimum#}\<rbrakk> \<Longrightarrow> Ball (set (selection_sort (rest))) ((\<le>) (minimum))"
