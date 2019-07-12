@@ -92,7 +92,9 @@ next
     also have c7:"... = mset (x # xs)" by simp
     finally show "mset (selection_sort (x # xs)) = mset (x # xs)" by this
   qed
-qed                                                                                                                                 
+qed                        
+
+lemma ff: "\<lbrakk>minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys)\<rbrakk> \<Longrightarrow> mset(rest) = mset(y # ys) - {#minimum#}" using [[simp_trace]] by simp
 
 lemma rest_is_permutation_1:"\<lbrakk>minimum = Min (set (y # ys)); rest = remove1 minimum (y # ys)\<rbrakk> \<Longrightarrow> mset(selection_sort(rest)) = mset(y # ys) - {#minimum#}"
 proof(induct ys arbitrary: y minimum rest  rule: selection_sort.induct)
@@ -100,23 +102,12 @@ proof(induct ys arbitrary: y minimum rest  rule: selection_sort.induct)
   then show ?case by simp
 next
   case (2 x xs)
-  show "mset (selection_sort rest) = mset (y # x # xs) - {#minimum#}"
-  proof(cases " Min (set (y # x # xs))  = y")
-    case True
-    have "mset (selection_sort rest) = mset (selection_sort (remove1  y  (y # x # xs)))"  using "2.prems"(1) "2.prems"(2) True by simp
-    also have "... =  mset (minimum#selection_sort (x # xs)) - {#minimum#}" by simp  
-    also have "... =  {#minimum#} + mset (selection_sort (x # xs)) - {#minimum#}"  by simp
-    also have "... =  {#minimum#} + mset (x # xs) - {#minimum#}"  using selection_sort_is_permutation_of_input by presburger
-    also have "... =  {#y#} + mset (x # xs) - {#minimum#}"  using "2.prems"(1) True by simp
-    also have "... =   mset (y#x#xs) - {#minimum#}"  using "2.prems"(1) True by simp
+    have c1: "mset (selection_sort rest) = mset (selection_sort (remove1  (Min (set (y # x # xs)))  (y # x # xs)))"  using "2.prems"(1) "2.prems"(2) by simp
+    also have c2:"... = mset  (remove1  (Min (set (y # x # xs)))  (y #x # xs))" using selection_sort_is_permutation_of_input by blast
+    also have c2:"... = mset  (y # x # xs) - {#Min (set (y # x # xs))#}" by (simp only:ff)
+    also have "... =  mset (y # x # xs) - {#minimum#}" using "2.prems"(1) by simp
     finally show "mset (selection_sort rest) = mset (y # x # xs) - {#minimum#}" by this
-  next
-    case False
-    then show ?thesis sorry
-  qed
 qed
-
-
 
 lemma rest_is_permutation:"\<lbrakk>minimum = Min (set (y # ys));rest = remove1 minimum (y # ys); mset(selection_sort(rest))  = mset(y # ys) - {#minimum#}\<rbrakk> \<Longrightarrow> Ball (set (selection_sort (rest))) ((\<le>) (minimum))"
 proof -
