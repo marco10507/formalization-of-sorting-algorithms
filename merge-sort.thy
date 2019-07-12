@@ -7,10 +7,36 @@ function merge:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
 "merge [] ys = ys" |
 "merge  (x#xs) (y#ys) = (if x \<le> y then x#merge xs (y#ys) else y#merge (x#xs) ys)"
 by pat_completeness auto
-termination 
-  apply (relation "measure (\<lambda>(xs,ys). length xs + length ys)")
-  apply (auto)
-done
+termination
+proof (relation "measure (\<lambda>(xs,ys). length xs + length ys)")
+  show "wf (measure (\<lambda>(xs, ys). length xs + length ys))" by simp
+next
+  fix xs ys::"nat list"
+  fix x y :: nat
+  assume a1: "x \<le> y"
+  show "((xs, y # ys), x # xs, y # ys) \<in> measure (\<lambda>(xs, ys). length xs + length ys)" 
+  proof (simp only: in_measure)
+    show "(case (xs, y # ys) of (xs, ys) \<Rightarrow> length xs + length ys) < (case (x # xs, y # ys) of (xs, ys) \<Rightarrow> length xs + length ys)"
+    proof(simp only: prod.case)
+      show "length xs + length (y # ys) < length (x # xs) + length (y # ys)" by simp
+    qed
+  qed
+next
+  fix xs ys::"nat list"
+  fix x y :: nat
+  assume a2: "\<not> x \<le> y "
+  show "((x # xs, ys), x # xs, y # ys) \<in> measure (\<lambda>(xs, ys). length xs + length ys)"
+  proof (simp only: in_measure)
+    show "(case (x # xs, ys) of (xs, ys) \<Rightarrow> length xs + length ys) < (case (x # xs, y # ys) of (xs, ys) \<Rightarrow> length xs + length ys)" 
+    proof(simp only: prod.case)
+      show "length (x # xs) + length ys < length (x # xs) + length (y # ys)" by simp
+    qed
+  qed
+qed
+
+(*
+ using [[simp_trace]] by simp
+*)
 
 lemma merge_is_permutation_of_input: "mset (merge xs ys) = mset xs + mset ys"
 proof(induct xs ys rule: merge.induct)
