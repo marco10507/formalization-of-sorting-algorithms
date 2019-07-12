@@ -62,8 +62,6 @@ next
   qed
 qed
 
-
-
 value "selection_sort [2,4,10,0,0]"
 
 theorem selection_sort_is_permutation_of_input: "mset (selection_sort(xs)) = mset xs"
