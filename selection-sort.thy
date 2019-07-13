@@ -2,19 +2,6 @@ theory "selection-sort"
   imports Main "HOL-Library.Multiset"
 begin
 
-lemma minimum_membership: "minimum = Min(set (x#xs)) \<Longrightarrow> minimum \<in> set (x#xs)"
-proof(induct xs arbitrary: x minimum)
-  case Nil  
-  have "minimum = Min (set [x])" using Nil.prems by simp
-  also have "... \<in> set [x]" by simp
-  finally show "minimum \<in> set [x]" by this
-next
-  case (Cons a xs)
-   have "minimum = Min (set (x # a # xs))" using Cons.prems by simp
-   also have "... \<in> set (x # a # xs)"  using Min_in by blast
-   finally show "minimum \<in> set (x # a # xs)" by this
-qed
-
 lemma remove_member: "y \<in> set (x#xs) \<Longrightarrow> length (remove1 y (x#xs)) < length (x#xs)"
 proof(induct xs arbitrary: y x)
   case Nil
@@ -57,7 +44,7 @@ next
   assume a2: "rest = remove1 minimum (x # xs)"
   show "(rest, x # xs) \<in> measure length"
   proof (simp only: in_measure)
-    have p1: "minimum \<in> set (x#xs)" using a1 by (simp only: minimum_membership)
+    have p1: "minimum \<in> set (x#xs)" using a1 eq_Min_iff by blast
     show "length rest < length (x # xs)" using a2 p1 by (simp only:remove_member)
   qed
 qed
@@ -89,7 +76,7 @@ next
     have c1: "mset (selection_sort (x # xs)) = mset(?min #selection_sort(?rest))" by (metis "selection-sort.selection_sort_Cons")
     also have c2:"... = {#?min#} + mset(selection_sort(?rest))" by simp
     also have c3:"... = {#?min#} + mset(?rest)" using IH by simp
-    also have c4:"... = {#?min#} + mset(x # xs) - {#?min#}" using False minimum_membership [simp_trace] by fastforce
+    also have c4:"... = {#?min#} + mset(x # xs) - {#?min#}" by (metis List.finite_set Min_in diff_union_single_conv list.distinct(1) mset_remove1 set_empty set_mset_mset)
     also have c5:"... = mset (x # xs)" by simp
     finally show "mset (selection_sort (x # xs)) = mset (x # xs)" by this
   qed
