@@ -2,7 +2,7 @@ theory "selection-sort"
   imports Main "HOL-Library.Multiset"
 begin
 
-lemma min_membership: "minimum = Min(set (x#xs)) \<Longrightarrow> minimum \<in> set (x#xs)"
+lemma minimum_membership: "minimum = Min(set (x#xs)) \<Longrightarrow> minimum \<in> set (x#xs)"
 proof(induct xs arbitrary: x minimum)
   case Nil  
   have "minimum = Min (set [x])" using Nil.prems by simp
@@ -57,7 +57,7 @@ next
   assume a2: "rest = remove1 minimum (x # xs)"
   show "(rest, x # xs) \<in> measure length"
   proof (simp only: in_measure)
-    have p1: "minimum \<in> set (x#xs)" using a1 by (simp only: min_membership)
+    have p1: "minimum \<in> set (x#xs)" using a1 by (simp only: minimum_membership)
     show "length rest < length (x # xs)" using a2 p1 by (simp only:remove_member)
   qed
 qed
@@ -89,7 +89,7 @@ next
     have c1: "mset (selection_sort (x # xs)) = mset(?min #selection_sort(?rest))" by (metis "selection-sort.selection_sort_Cons")
     also have c2:"... = {#?min#} + mset(selection_sort(?rest))" by simp
     also have c3:"... = {#?min#} + mset(?rest)" using IH by simp
-    also have c4:"... = {#?min#} + mset(x # xs) - {#?min#}" using False  min_membership [simp_trace] by fastforce
+    also have c4:"... = {#?min#} + mset(x # xs) - {#?min#}" using False minimum_membership [simp_trace] by fastforce
     also have c5:"... = mset (x # xs)" by simp
     finally show "mset (selection_sort (x # xs)) = mset (x # xs)" by this
   qed
