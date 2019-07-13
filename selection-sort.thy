@@ -81,6 +81,7 @@ next
     finally show "mset (selection_sort (x # xs)) = mset (x # xs)" by this
   qed
 qed                        
+thm selection_sort.induct
 
 theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
 proof(induct xs rule:selection_sort.induct)
@@ -92,37 +93,24 @@ next
   let ?rest = "remove1 ?minimum (x # xs)"
   show "sorted (selection_sort (x # xs))"
   proof(simp only:selection_sort_Cons Let_def)
-    have "?minimum = Min (set (x # xs))" by simp
-    moreover have "?rest = remove1 ?minimum (x # xs)" by simp
-    ultimately show "sorted (?minimum # selection_sort (?rest))"
+    show "sorted (?minimum # selection_sort (?rest))"
     proof (simp only:Let_def sorted.simps)
       show "Ball (set (selection_sort (?rest))) ((\<le>) (?minimum)) \<and> sorted (selection_sort (?rest))"
       proof (rule conjI)
-        have p1: "mset(selection_sort(?rest)) = mset(x # xs) - {#?minimum#}" by (simp add: selection_sort_is_permutation_of_input)
-        show "Ball (set (selection_sort (?rest))) ((\<le>) (?minimum))" using p1  by (metis List.finite_set Min_le in_diffD p1 set_mset_mset)
+        have p1: "mset(selection_sort(?rest)) = mset(x # xs) - {#?minimum#}" 
+        proof -
+          have c1:"mset(selection_sort(?rest)) = mset(?rest)"  using selection_sort_is_permutation_of_input by blast
+          also have c2:"... = mset(x # xs) - {#?minimum#}"  using c1 by simp
+          finally show "mset(selection_sort(?rest)) = mset(x # xs) - {#?minimum#}" by this
+        qed
+        show "Ball (set (selection_sort (?rest))) ((\<le>) (?minimum))"  by (metis List.finite_set Min_le in_diffD p1 set_mset_mset)
       next
         have "sorted (selection_sort (?rest))" using "2.hyps" by simp
-        from this show "sorted (selection_sort (?rest))" by assumption
+        then show "sorted (selection_sort (?rest))" by assumption
       qed
     qed 
   qed
 qed
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 (*tail-recursive version*)
