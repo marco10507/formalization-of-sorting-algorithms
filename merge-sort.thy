@@ -65,10 +65,11 @@ next
   then show "sorted (merge (x # xs) (y # ys))"
   proof(cases "x \<le> y")
     case True
-    then show ?thesis  by (metis "3.hyps"(1) "3.prems"(1) "3.prems"(2) list.sel(3) merge.simps(3) sorted_accepts_merge_left sorted_tl)
+    then show "sorted (merge (x # xs) (y # ys))"  by (metis "3.hyps"(1) "3.prems"(1) "3.prems"(2) merge.simps(3) sorted.simps(2) sorted_accepts_merge_left)
   next
     case False
-    then show ?thesis  by (metis "3.hyps"(2) "3.prems"(1) "3.prems"(2) merge.simps(3) sorted.simps(2) sorted_accepts_merge_right)
+    thm "3.hyps"
+    then show "sorted (merge (x # xs) (y # ys))"  using "3.hyps"(2) "3.prems"(1) "3.prems"(2) merge.simps(3) sorted.simps(2) sorted_accepts_merge_right by (metis)
   qed
 qed
 
@@ -111,20 +112,32 @@ qed
 *)
 lemma merge_is_permutation_of_input: "mset (merge xs ys) = mset xs + mset ys"
 proof(induct xs ys rule: merge.induct)
-case (1 ys)
-  then show ?case by simp
+  case (1 ys)
+  have "mset (merge ys []) = mset (ys)" by simp
+  also have "... =  mset ys + mset []" by simp
+  finally show "mset (merge ys []) = mset ys + mset []" by this
 next
-  case (2 xs)
-  then show ?case by simp
+  case (2 xs)  
+  have "mset (merge [] xs) = mset (xs)" by simp
+  also have "... =  mset xs + mset []" by simp
+  then show "mset (merge [] xs) = mset [] + mset xs" by simp
 next
   case (3 x xs y ys)
   then show ?case
   proof(cases "x \<le> y")
     case True
-    then show ?thesis using [[simp_trace_new]] "3.hyps"(1) by simp
+    have "mset (merge (x # xs) (y # ys)) = mset (x#merge xs (y # ys))" using True by simp 
+    also have "... =  {#x#} +  mset (merge xs (y # ys))" by simp
+    also have "... =  {#x#} +  mset xs + mset (y # ys)" by (simp add: "3.hyps"(1) True)
+    also have "... =   mset (x # xs) + mset (y # ys)" by (simp add: "3.hyps"(1) True)
+    finally show "mset (merge (x # xs) (y # ys)) = mset (x # xs) + mset (y # ys)" by this
   next
     case False
-    then show ?thesis using [[simp_trace_new]] "3.hyps"(2) by simp
+    have "mset (merge (x # xs) (y # ys)) = mset (y#merge (x#xs) ys)" using False by simp 
+    also have "... =  {#y#} +  mset(merge (x#xs) ys)" by simp
+    also have "... =  {#y#} +  mset (x # xs) + mset ys" by (simp add: "3.hyps"(2) False)
+    also have "... =  mset (x # xs) + mset (y # ys)" by simp
+    finally show "mset (merge (x # xs) (y # ys)) = mset (x # xs) + mset (y # ys)" by this
   qed
 qed
 
