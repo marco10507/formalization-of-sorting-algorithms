@@ -53,35 +53,34 @@ value "selection_sort [2,4,10,0,0]"
 
 theorem selection_sort_is_permutation_of_input: "mset (selection_sort(xs)) = mset xs"
 proof(induct xs rule: selection_sort.induct)
-case 1
-then show ?case by simp
+  case 1
+  then show "mset (selection_sort []) = mset []" by simp
 next
   case (2 x xs)
-  let ?min = "Min (set (x # xs))"
-  let ?rest = "remove1 ?min (x # xs)"
+  let ?minimum = "Min (set (x # xs))"
+  let ?rest = "remove1 ?minimum (x # xs)"
   have IH: "mset (selection_sort ?rest) = mset ?rest" using "2.hyps" by simp
   then show "mset (selection_sort (x # xs)) = mset (x # xs)"
-  proof(cases "?min = x")
+  proof(cases "?minimum = x")
     case True
-    have "mset (selection_sort (x # xs)) = mset(?min#selection_sort(?rest))" using True by simp
-    also have "... = {#?min#}  + mset(selection_sort(?rest))" by simp
-    also have "... = {#?min#}  + mset(?rest)" using IH by simp
-    also have "... = {#?min#}  + mset(remove1 x (x # xs))" using True by simp
-    also have "... = {#?min#}  + mset(xs)" by simp
+    have "mset (selection_sort (x # xs)) = mset(?minimum#selection_sort(?rest))" using True by simp
+    also have "... = {#?minimum#}  + mset(selection_sort(?rest))" by simp
+    also have "... = {#?minimum#}  + mset(?rest)" using IH by simp
+    also have "... = {#?minimum#}  + mset(remove1 x (x # xs))" using True by simp
+    also have "... = {#?minimum#}  + mset(xs)" by simp
     also have "... = {#x#}  + mset(xs)" using True by simp
     also have "... = mset (x#xs)" by simp
     finally show "mset (selection_sort (x # xs)) = mset (x # xs)" by this
   next
     case False
-    have c1: "mset (selection_sort (x # xs)) = mset(?min #selection_sort(?rest))" by (metis "selection-sort.selection_sort_Cons")
-    also have c2:"... = {#?min#} + mset(selection_sort(?rest))" by simp
-    also have c3:"... = {#?min#} + mset(?rest)" using IH by simp
-    also have c4:"... = {#?min#} + mset(x # xs) - {#?min#}" by (metis List.finite_set Min_in diff_union_single_conv list.distinct(1) mset_remove1 set_empty set_mset_mset)
+    have c1: "mset (selection_sort (x # xs)) = mset(?minimum#selection_sort(?rest))" by (metis "selection-sort.selection_sort_Cons")
+    also have c2:"... = {#?minimum#} + mset(selection_sort(?rest))" by simp
+    also have c3:"... = {#?minimum#} + mset(?rest)" using IH by simp
+    also have c4:"... = {#?minimum#} + mset(x # xs) - {#?minimum#}" by (metis List.finite_set Min_in diff_union_single_conv list.distinct(1) mset_remove1 set_empty set_mset_mset)
     also have c5:"... = mset (x # xs)" by simp
     finally show "mset (selection_sort (x # xs)) = mset (x # xs)" by this
   qed
 qed                        
-thm selection_sort.induct
 
 theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
 proof(induct xs rule:selection_sort.induct)
