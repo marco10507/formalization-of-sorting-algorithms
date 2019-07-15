@@ -34,24 +34,6 @@ next
   qed
 qed
 
-lemma merge_is_permutation_of_input: "mset (merge xs ys) = mset xs + mset ys"
-proof(induct xs ys rule: merge.induct)
-case (1 ys)
-  then show ?case by simp
-next
-  case (2 xs)
-  then show ?case by simp
-next
-  case (3 x xs y ys)
-  then show ?case
-  proof(cases "x \<le> y")
-    case True
-    then show ?thesis using [[simp_trace_new]] "3.hyps"(1) by simp
-  next
-    case False
-    then show ?thesis using [[simp_trace_new]] "3.hyps"(2) by simp
-  qed
-qed
 
 lemma sorted_accepts_merge_left :"\<lbrakk>sorted (y#ys);sorted (x#xs);sorted (xs);sorted (merge (xs) (y#ys)); x \<le> y\<rbrakk> \<Longrightarrow> sorted(x#merge (xs) (y#ys))"
 proof(induction xs rule: sorted.induct)
@@ -62,7 +44,7 @@ next
   then show ?case by fastforce
 qed
 
-lemma sorted_accepts_merge_right :"\<lbrakk>sorted (y#ys);sorted (x#xs);sorted (ys);sorted (merge (x#xs) (ys)); y \<le> x\<rbrakk> \<Longrightarrow> sorted(y#merge (x#xs) (ys))"
+lemma sorted_accepts_merge_right :"\<lbrakk>sorted (y#ys);sorted (x#xs);sorted (ys);sorted (merge (x#xs) (ys)); \<not> x \<le> y\<rbrakk> \<Longrightarrow> sorted(y#merge (x#xs) (ys))"
 proof(induction ys rule: sorted.induct)
   case 1
   then show ?case by auto
@@ -71,7 +53,28 @@ next
   then show ?case by fastforce
 qed
 
-theorem merge_output_sorted: "sorted (xs) \<Longrightarrow> sorted(ys) \<Longrightarrow> sorted(merge xs ys)"
+theorem merge_output_sorted: "\<lbrakk>sorted (xs);sorted(ys)\<rbrakk> \<Longrightarrow> sorted(merge xs ys)"
+proof(induct xs ys rule: merge.induct)
+  case (1 xs)
+  then show "sorted (merge xs [])" by simp
+next
+  case (2 ys)
+  then show "sorted (merge [] ys)" by simp
+next
+  case (3 x xs y ys)
+  then show "sorted (merge (x # xs) (y # ys))"
+  proof(cases "x \<le> y")
+    case True
+    then show ?thesis  by (metis "3.hyps"(1) "3.prems"(1) "3.prems"(2) list.sel(3) merge.simps(3) sorted_accepts_merge_left sorted_tl)
+  next
+    case False
+    then show ?thesis  by (metis "3.hyps"(2) "3.prems"(1) "3.prems"(2) merge.simps(3) sorted.simps(2) sorted_accepts_merge_right)
+  qed
+qed
+
+
+(*
+theorem merge_output_sorted: "\<lbrakk>sorted (xs);sorted(ys)\<rbrakk> \<Longrightarrow> sorted(merge xs ys)"
 proof(induct xs ys rule: merge.induct)
   fix ys let ?case = "sorted (merge [] ys)"
   assume case1_assums: "sorted ys" and "sorted []"
@@ -105,6 +108,26 @@ next
     then show "sorted (merge (x # xs) (y # ys))" by assumption
   qed
 qed
+*)
+lemma merge_is_permutation_of_input: "mset (merge xs ys) = mset xs + mset ys"
+proof(induct xs ys rule: merge.induct)
+case (1 ys)
+  then show ?case by simp
+next
+  case (2 xs)
+  then show ?case by simp
+next
+  case (3 x xs y ys)
+  then show ?case
+  proof(cases "x \<le> y")
+    case True
+    then show ?thesis using [[simp_trace_new]] "3.hyps"(1) by simp
+  next
+    case False
+    then show ?thesis using [[simp_trace_new]] "3.hyps"(2) by simp
+  qed
+qed
+
 
 value "merge [1,2,3] [1,4,5,6]"
 
