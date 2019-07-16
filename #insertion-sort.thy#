@@ -4,16 +4,20 @@ begin
 
 declare[[names_short]]
 
+
 fun insert:: "nat \<Rightarrow> nat list \<Rightarrow> nat list" where
 insert_Nil: "insert x [] = [x]" |
 insert_Cons: "insert x (y#ys) = (if x < y then (x#y#ys) else y#insert x ys)"
 
 value "insert 1 [2,4,10]"
 
+
 fun insert_sort:: "nat list \<Rightarrow> nat list" where
 insert_sort_Nil : "insert_sort []  = []" |
 insert_sort_Cons: "insert_sort (x#xs)  = insert x (insert_sort(xs))"
 
+thm insert.induct
+thm  insert_sort.induct
 value "insert_sort [2,4,10,0,3]"
 
 lemma sorted3 : "\<lbrakk>sorted(y#ys); \<not> x < y\<rbrakk> \<Longrightarrow> sorted (y#insert x ys) = (y \<le> x \<and> sorted(insert x ys))"
@@ -24,6 +28,9 @@ next
   case (2 x ys)
   then show ?case using insert_Cons leI less_imp_le_nat sorted2 by metis
 qed
+
+thm  insert.induct
+thm  insert_sort.induct
 
 lemma insert_output_sorted : "sorted(ys) \<Longrightarrow> sorted (insert y ys)"
 proof (induct ys rule: insert.induct)
@@ -59,6 +66,7 @@ next
     qed
   qed
 qed
+
 
 theorem insert_sort_output_sorted : "sorted(insert_sort(ys))"
 proof (induct ys rule:insert_sort.induct)

@@ -34,6 +34,7 @@ next
   qed
 qed
 
+value "merge ([1,2,3]) ([1,2,3,10])"
 
 lemma sorted_accepts_merge_left :"\<lbrakk>sorted (y#ys);sorted (x#xs);sorted (xs);sorted (merge (xs) (y#ys)); x \<le> y\<rbrakk> \<Longrightarrow> sorted(x#merge (xs) (y#ys))"
 proof(induction xs rule: sorted.induct)
@@ -53,7 +54,7 @@ next
   then show ?case by fastforce
 qed
 
-theorem merge_output_sorted: "\<lbrakk>sorted (xs);sorted(ys)\<rbrakk> \<Longrightarrow> sorted(merge xs ys)"
+lemma merge_output_sorted: "\<lbrakk>sorted (xs);sorted(ys)\<rbrakk> \<Longrightarrow> sorted(merge xs ys)"
 proof(induct xs ys rule: merge.induct)
   case (1 xs)
   then show "sorted (merge xs [])" by simp
@@ -73,43 +74,6 @@ next
   qed
 qed
 
-
-(*
-theorem merge_output_sorted: "\<lbrakk>sorted (xs);sorted(ys)\<rbrakk> \<Longrightarrow> sorted(merge xs ys)"
-proof(induct xs ys rule: merge.induct)
-  fix ys let ?case = "sorted (merge [] ys)"
-  assume case1_assums: "sorted ys" and "sorted []"
-  then show ?case using [[simp_trace]]  by simp
-next
-  fix xs let ?case = "sorted (merge xs [])"
-  assume case2_assums: "sorted xs" and "sorted []"
-  then show ?case by simp
-next
-  fix x xs y ys let ?case = "sorted (merge (x # xs) (y # ys))"
-  assume case3_hyp1: "x \<le> y \<Longrightarrow> sorted xs \<Longrightarrow> sorted (y # ys) \<Longrightarrow> sorted (merge xs (y # ys))" and case3_hyp2: "\<not> x \<le> y \<Longrightarrow> sorted (x # xs) \<Longrightarrow> sorted ys \<Longrightarrow> sorted (merge (x # xs) ys)"
-  assume case3_prem1: "sorted (x # xs)" and case3_prem2:"sorted (y # ys)"
-  then show ?case
-  proof(cases "x \<le> y")
-    let ?thesis = "sorted (merge (x # xs) (y # ys))"
-    assume true_assum: " x \<le> y"
-    have "sorted xs" using case3_prem1 sorted.simps(2) by blast
-    also have "sorted (y # ys)" using case3_prem2 by blast
-    moreover have "sorted (merge xs (y # ys))" using calculation(1) case3_hyp1 case3_prem2 true_assum by blast
-    moreover have "sorted (x#merge xs (y # ys))" using sorted_accepts_merge_left calculation(1) calculation(3) case3_prem1 case3_prem2 true_assum by blast
-    then have "sorted (merge (x # xs) (y # ys))" by (simp add: true_assum)
-    then show ?thesis by assumption
-  next
-    let ?thesis = "sorted (merge (x # xs) (y # ys))"
-    assume false_assum: "\<not> x \<le> y"
-    have "sorted (x # xs)" using case3_prem1 by blast
-    also have "sorted ys" using case3_prem2 sorted.simps(2) by blast
-    moreover have "sorted (merge (x # xs) ys)" using case3_hyp2 calculation(2) case3_prem1 false_assum by blast
-    moreover have "sorted (y#merge (x # xs) ys)" using calculation(2) calculation(3) case3_prem1 case3_prem2 false_assum nat_le_linear sorted_accepts_merge_right by blast
-    then have "sorted (merge (x # xs) (y # ys))" by (simp add: false_assum)
-    then show "sorted (merge (x # xs) (y # ys))" by assumption
-  qed
-qed
-*)
 lemma merge_is_permutation_of_input: "mset (merge xs ys) = mset xs + mset ys"
 proof(induct xs ys rule: merge.induct)
   case (1 ys)
@@ -128,7 +92,7 @@ next
     case True
     have "mset (merge (x # xs) (y # ys)) = mset (x#merge xs (y # ys))" using True by simp 
     also have "... =  {#x#} +  mset (merge xs (y # ys))" by simp
-    also have "... =  {#x#} +  mset xs + mset (y # ys)" by (simp add: "3.hyps"(1) True)
+    also have "... =  {#x#} +  mset xs + mset (y # ys)" using "3.hyps"(1) True  by (simp)
     also have "... =   mset (x # xs) + mset (y # ys)" by (simp add: "3.hyps"(1) True)
     finally show "mset (merge (x # xs) (y # ys)) = mset (x # xs) + mset (y # ys)" by this
   next
@@ -147,9 +111,14 @@ value "merge [1,2,3] [1,4,5,6]"
 fun merge_sort:: "nat list \<Rightarrow> nat list" where
 "merge_sort [] = []" |
 "merge_sort [x] = [x]" |
-"merge_sort xs = ( let  half = ((length xs) div 2); left = take half xs; right = drop half xs in  merge (merge_sort (left)) (merge_sort (right)))"
+"merge_sort (xs) = ( let  half = ((length xs) div 2); left = take half xs; right = drop half xs in  merge (merge_sort (left)) (merge_sort (right)))"
 
 value "msort [9,8,7,6,5,4]"
+
+value " (2::nat) div (2::nat)"
+
+thm merge.induct
+thm merge_sort.induct
 
 theorem msort_output_sorted: "sorted(merge_sort xs)"
 proof(induct xs rule:merge_sort.induct)
@@ -160,42 +129,30 @@ next
   then show ?case by simp
 next
   case (3 v vb vc)
+  thm  "3.hyps"
   let ?half = "length (v # vb # vc) div 2"
   let ?left = "take ?half (v # vb # vc)"
   let ?right = "drop ?half (v # vb # vc)"
-  have "sorted (merge_sort ?left)" using "3.hyps"(1) by blast
-  moreover have "sorted (merge_sort ?right)" using [[simp_trace]]  "3.hyps"(2) by blast
-  moreover have "sorted(merge (merge_sort (?left)) (merge_sort (?right)))" using calculation(1) calculation(2) merge_output_sorted by blast
+  have "sorted(merge (merge_sort (?left)) (merge_sort (?right)))"  by (simp add: "3.hyps"(1) "3.hyps"(2) merge_output_sorted)
   then have "sorted (merge_sort (v # vb # vc))" by simp
   then show "sorted (merge_sort (v # vb # vc))" by assumption
-qed
-
-lemma halve_list: "let half = (length xs) div 2; left = take half xs; right = drop half xs in left@right = xs"
-proof(induct xs)
-  case Nil
-  then show ?case by simp
-next
-  case (Cons a xs)
-  then show ?case by simp
 qed
 
 theorem msort_is_permutation_of_input: "mset (merge_sort xs) = mset xs"
 proof(induct xs rule:merge_sort.induct)
   case 1
-  then show ?case by simp
+  then show "mset (merge_sort []) = mset []" by simp
 next
   case (2 x)
-  then show ?case by simp
+  then show "mset (merge_sort [x]) = mset [x]" by simp
 next
   case (3 v vb vc)
   let ?half = "length (v # vb # vc) div 2"
   let ?left = "take ?half (v # vb # vc)"
   let ?right = "drop ?half (v # vb # vc)"
-  have " mset (merge_sort ?left) = mset ?left" using "3.hyps"(1) by blast
-  moreover have "mset (merge_sort ?right) = mset ?right" using "3.hyps"(2) by blast
-  moreover have "mset (merge (merge_sort (?left)) (merge_sort (?right))) = mset ?left + mset ?right" using "3.hyps"(2) calculation(1) merge_is_permutation_of_input by auto
-  moreover have "mset (merge_sort (v # vb # vc)) = mset ?left + mset ?right" using calculation(3) by auto
-  moreover have "mset ?left + mset ?right = mset (v # vb # vc)" using [[simp_trace]] halve_list mset_append by (metis) (*this might be more expended to show smothly the transition to mset (v # vb # vc) *)
-  then have "mset (merge_sort (v # vb # vc)) = mset (v # vb # vc)" using calculation(4) by auto
-  then show "mset (merge_sort (v # vb # vc)) = mset (v # vb # vc)" by assumption
+  have "mset (merge_sort (v # vb # vc)) = mset(merge (merge_sort ?left) (merge_sort ?right))" by simp
+  also have "... = mset(merge_sort ?left) + mset(merge_sort ?right)" using merge_is_permutation_of_input by simp
+  also have "... = mset(?left) + mset(?right)"  by (simp add: "3.hyps"(1) "3.hyps"(2))
+  also have "... = mset (v # vb # vc)"  by (metis append_take_drop_id mset_append)
+  finally show "mset (merge_sort (v # vb # vc)) = mset (v # vb # vc)" by this
 qed

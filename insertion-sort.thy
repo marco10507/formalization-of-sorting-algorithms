@@ -25,6 +25,8 @@ next
   then show ?case using insert_Cons leI less_imp_le_nat sorted2 by metis
 qed
 
+thm  insert.induct
+
 lemma insert_output_sorted : "sorted(ys) \<Longrightarrow> sorted (insert y ys)"
 proof (induct ys rule: insert.induct)
   case (1 x)
@@ -48,6 +50,7 @@ next
   next
     case False
     then show "sorted (insert x (y # ys))"
+      thm  "2.hyps"
     proof(simp only:False insert_Cons if_False [[simp_trace]])
       show "sorted (y # insert x ys)"
       proof(simp  del:List.linorder_class.sorted.simps add: False sorted3 "local.2.prems")
