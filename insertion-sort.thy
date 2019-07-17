@@ -4,6 +4,7 @@ begin
 
 declare[[names_short]]
 
+
 fun insert:: "nat \<Rightarrow> nat list \<Rightarrow> nat list" where
 insert_Nil: "insert x [] = [x]" |
 insert_Cons: "insert x (y#ys) = (if x < y then (x#y#ys) else y#insert x ys)"
@@ -25,9 +26,7 @@ next
   then show ?case using insert_Cons leI less_imp_le_nat sorted2 by metis
 qed
 
-thm  insert.induct
-
-lemma insert_output_sorted : "sorted(ys) \<Longrightarrow> sorted (insert y ys)"
+lemma insert_order: "sorted(ys) \<Longrightarrow> sorted (insert y ys)"
 proof (induct ys rule: insert.induct)
   case (1 x)
   then show ?case by simp
@@ -62,7 +61,7 @@ next
   qed
 qed
 
-theorem insert_sort_output_sorted : "sorted(insert_sort(ys))"
+theorem insert_sort_order : "sorted(insert_sort(ys))"
 proof (induct ys rule:insert_sort.induct)
   case 1
   then show ?case by simp
@@ -70,11 +69,11 @@ next
   case (2 x xs)
   show "sorted (insert_sort (x # xs))"
   proof (simp only: insert_sort_Cons)
-     from "local.2.hyps" and insert_output_sorted show "sorted (insert x (insert_sort xs))" by simp
+     from "local.2.hyps" and insert_order show "sorted (insert x (insert_sort xs))" by simp
   qed
 qed
 
-lemma insert_is_permutation_of_input: "mset (insert y ys) = mset (y#ys)"
+lemma insert_permutation: "mset (insert y ys) = mset (y#ys)"
 proof(induct ys rule:insert.induct)
   case (1 x)
   show "mset (insert x []) = mset [x]" by simp
@@ -94,14 +93,14 @@ next
   qed
 qed
 
-theorem insert_sort_is_permutation_of_input: "mset (insert_sort ys) = mset ys" 
+theorem insert_sort_permutation: "mset (insert_sort ys) = mset ys"
 proof(induct ys rule: insert_sort.induct)
   case 1
   then show "mset (insert_sort []) = mset []" by simp
 next
   case (2 x xs)
   have "mset (insert_sort (x # xs)) = mset (insert x (insert_sort(xs)))" by simp
-  also have "... =  mset(x#(insert_sort(xs)))" using  insert_is_permutation_of_input by simp
+  also have "... =  mset(x#(insert_sort(xs)))" using  insert_permutation by simp
   also have "... =  {#x#} + mset(insert_sort(xs))" by simp
   also have "... =  {#x#} +  mset xs" using "local.2.hyps" by simp
   also have "... =  mset (x # xs)" using "local.2.hyps" by simp
