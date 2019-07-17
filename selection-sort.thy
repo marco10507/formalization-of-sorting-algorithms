@@ -51,7 +51,7 @@ qed
 
 value "selection_sort [2,4,10,0,0]"
 
-theorem selection_sort_is_permutation_of_input: "mset (selection_sort(xs)) = mset xs"
+theorem selection_sort_permutation: "mset (selection_sort(xs)) = mset xs"
 proof(induct xs rule: selection_sort.induct)
   case 1
   then show "mset (selection_sort []) = mset []" by simp
@@ -82,7 +82,7 @@ next
   qed
 qed                        
 
-theorem selection_sort_output_sorted: "sorted (selection_sort(xs))"
+theorem selection_sort_order: "sorted (selection_sort(xs))"
 proof(induct xs rule:selection_sort.induct)
   case 1
   then show ?case by simp
@@ -98,7 +98,7 @@ next
       proof (rule conjI)
         have p1: "mset(selection_sort(?rest)) = mset(x # xs) - {#?minimum#}" 
         proof -
-          have c1:"mset(selection_sort(?rest)) = mset(?rest)"  using selection_sort_is_permutation_of_input by blast
+          have c1:"mset(selection_sort(?rest)) = mset(?rest)"  using selection_sort_permutation by blast
           also have c2:"... = mset(x # xs) - {#?minimum#}"  using c1 by simp
           finally show "mset(selection_sort(?rest)) = mset(x # xs) - {#?minimum#}" by this
         qed
