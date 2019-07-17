@@ -54,7 +54,7 @@ next
   then show ?case by fastforce
 qed
 
-lemma merge_output_sorted: "\<lbrakk>sorted (xs);sorted(ys)\<rbrakk> \<Longrightarrow> sorted(merge xs ys)"
+lemma merge_order: "\<lbrakk>sorted (xs);sorted(ys)\<rbrakk> \<Longrightarrow> sorted(merge xs ys)"
 proof(induct xs ys rule: merge.induct)
   case (1 xs)
   then show "sorted (merge xs [])" by simp
@@ -74,7 +74,7 @@ next
   qed
 qed
 
-lemma merge_is_permutation_of_input: "mset (merge xs ys) = mset xs + mset ys"
+lemma merge_permutation: "mset (merge xs ys) = mset xs + mset ys"
 proof(induct xs ys rule: merge.induct)
   case (1 ys)
   have "mset (merge ys []) = mset (ys)" by simp
@@ -120,7 +120,7 @@ value " (2::nat) div (2::nat)"
 thm merge.induct
 thm merge_sort.induct
 
-theorem msort_output_sorted: "sorted(merge_sort xs)"
+theorem merge_sort_order: "sorted(merge_sort xs)"
 proof(induct xs rule:merge_sort.induct)
   case 1
   then show ?case by simp
@@ -133,12 +133,12 @@ next
   let ?half = "length (v # vb # vc) div 2"
   let ?left = "take ?half (v # vb # vc)"
   let ?right = "drop ?half (v # vb # vc)"
-  have "sorted(merge (merge_sort (?left)) (merge_sort (?right)))"  by (simp add: "3.hyps"(1) "3.hyps"(2) merge_output_sorted)
+  have "sorted(merge (merge_sort (?left)) (merge_sort (?right)))"  by (simp add: "3.hyps"(1) "3.hyps"(2) merge_order)
   then have "sorted (merge_sort (v # vb # vc))" by simp
   then show "sorted (merge_sort (v # vb # vc))" by assumption
 qed
 
-theorem msort_is_permutation_of_input: "mset (merge_sort xs) = mset xs"
+theorem merge_sort_permutation: "mset (merge_sort xs) = mset xs"
 proof(induct xs rule:merge_sort.induct)
   case 1
   then show "mset (merge_sort []) = mset []" by simp
@@ -151,7 +151,7 @@ next
   let ?left = "take ?half (v # vb # vc)"
   let ?right = "drop ?half (v # vb # vc)"
   have "mset (merge_sort (v # vb # vc)) = mset(merge (merge_sort ?left) (merge_sort ?right))" by simp
-  also have "... = mset(merge_sort ?left) + mset(merge_sort ?right)" using merge_is_permutation_of_input by simp
+  also have "... = mset(merge_sort ?left) + mset(merge_sort ?right)" using merge_permutation by simp
   also have "... = mset(?left) + mset(?right)"  by (simp add: "3.hyps"(1) "3.hyps"(2))
   also have "... = mset (v # vb # vc)"  by (metis append_take_drop_id mset_append)
   finally show "mset (merge_sort (v # vb # vc)) = mset (v # vb # vc)" by this
