@@ -141,9 +141,12 @@ next
   let ?half = "length (v # vb # vc) div 2"
   let ?left = "take ?half (v # vb # vc)"
   let ?right = "drop ?half (v # vb # vc)"
-  have "sorted(merge (merge_sort (?left)) (merge_sort (?right)))"  by (simp add: "3.hyps"(1) "3.hyps"(2) merge_order)
-  then have "sorted (merge_sort (v # vb # vc))" by simp
-  then show "sorted (merge_sort (v # vb # vc))" by assumption
+  show "sorted (merge_sort (v # vb # vc))" 
+  proof (simp only: merge_sort.simps Let_def)
+    have "sorted ((merge_sort (?left)))" using "3.hyps"(1) by simp
+    moreover have "sorted ((merge_sort (?right)))" using "3.hyps"(2) by simp
+    ultimately show "sorted (merge (merge_sort (?left)) (merge_sort (?right)))" by (simp only:merge_order)
+  qed
 qed
 
 theorem merge_sort_permutation: "mset (merge_sort xs) = mset xs"
