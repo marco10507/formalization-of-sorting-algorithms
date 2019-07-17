@@ -4,7 +4,6 @@ begin
 
 declare[[names_short]]
 
-
 fun insert:: "nat \<Rightarrow> nat list \<Rightarrow> nat list" where
 insert_Nil: "insert x [] = [x]" |
 insert_Cons: "insert x (y#ys) = (if x < y then (x#y#ys) else y#insert x ys)"
@@ -29,7 +28,7 @@ qed
 lemma insert_order: "sorted(ys) \<Longrightarrow> sorted (insert y ys)"
 proof (induct ys rule: insert.induct)
   case (1 x)
-  then show ?case by simp
+  then show "sorted (insert x [])" by simp
 next
   case (2 x y ys)
   then show ?case
@@ -72,12 +71,12 @@ qed
 theorem insert_sort_order : "sorted(insert_sort(ys))"
 proof (induct ys rule:insert_sort.induct)
   case 1
-  then show ?case by simp
+  then show "sorted (insert_sort [])" by simp
 next
   case (2 x xs)
   show "sorted (insert_sort (x # xs))"
   proof (simp only: insert_sort_Cons)
-     from "local.2.hyps" and insert_order show "sorted (insert x (insert_sort xs))" by simp
+    show "sorted (insert x (insert_sort xs))" by (simp only: "local.2.hyps" insert_order)
   qed
 qed
 
@@ -115,26 +114,27 @@ next
   finally show "mset (insert_sort (x # xs)) = mset (x # xs)" by this
 qed
 
+
 fun insert_sort_tail:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
 insert_sort_tail_Nil : "insert_sort_tail [] accum  = accum" |
 insert_sort_tail_Cons: "insert_sort_tail (x#xs) accum  = insert_sort_tail (xs) (insert x accum)"
 
 value "insert_sort_tail ([2,4,10]) ([])"
 
-theorem insert_sort_tail_output_sorted: "sorted(ACCUM) \<Longrightarrow> sorted(insert_sort_tail xs ACCUM)"
+theorem insert_sort_tail_order: "sorted(ACCUM) \<Longrightarrow> sorted(insert_sort_tail xs ACCUM)"
 proof(induct xs arbitrary:ACCUM)
   case Nil
-  then show ?case by simp
+  then show "sorted (insert_sort_tail [] ACCUM)" by simp
 next
   case (Cons a xs)
-  then show ?case by (simp add: insert_output_sorted)
+  then show "sorted (insert_sort_tail (a # xs) ACCUM)" by (simp add: insert_order)
 qed
 
-theorem insert_sort_tail_is_permutation_of_input: "mset (insert_sort_tail xs ACCUM) = mset (xs@ACCUM)"
+theorem insert_sort_tail_permutation: "mset (insert_sort_tail xs ACCUM) = mset (xs@ACCUM)"
 proof(induct xs arbitrary:ACCUM)
   case Nil
-  then show ?case by simp
+  then show "mset (insert_sort_tail [] ACCUM) = mset ([] @ ACCUM)" by simp
 next
   case (Cons a xs)
-  then show ?case by (simp add: insert_is_permutation_of_input)
+  then show ?case by (simp add: insert_permutation)
 qed
