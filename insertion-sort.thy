@@ -36,26 +36,34 @@ next
   proof (cases "x < y")
     case True
     then show "sorted (insert x (y#ys))"
-    proof (simp only: True insert_Cons if_True [[simp_trace]])
+    proof (simp only: True insert_Cons if_True)
       show "sorted (x # y # ys)"
       proof(simp)
-        from True have "x \<le> y" by simp
-        moreover from "local.2.prems" calculation have "(\<forall>xa\<in>set ys. x \<le> xa)" by auto
-        moreover from "local.2.prems"(1) have "(\<forall>x\<in>set ys. y \<le> x)" by simp
-        moreover from "local.2.prems"(1) have "sorted ys" by simp
-        ultimately show "x \<le> y \<and> (\<forall>xa\<in>set ys. x \<le> xa) \<and> (\<forall>x\<in>set ys. y \<le> x) \<and> sorted ys" by blast
+        show "x \<le> y \<and> (\<forall>xa\<in>set ys. x \<le> xa) \<and> (\<forall>x\<in>set ys. y \<le> x) \<and> sorted ys"
+        proof(intro conjI)
+          show "x \<le> y" by (simp add: True le_less)
+        next
+          show "\<forall>xa\<in>set ys. x \<le> xa" using "local.2.prems" True by auto
+        next
+          show "(\<forall>x\<in>set ys. y \<le> x)" using "local.2.prems" List.linorder_class.sorted.simps(2) by blast
+        next
+          show "sorted ys" using "local.2.prems" List.linorder_class.sorted.simps(2) by blast
+        qed
       qed
     qed
   next
     case False
     then show "sorted (insert x (y # ys))"
-      thm  "2.hyps"
-    proof(simp only:False insert_Cons if_False [[simp_trace]])
+    proof(simp only:False insert_Cons if_False)
       show "sorted (y # insert x ys)"
       proof(simp  del:List.linorder_class.sorted.simps add: False sorted3 "local.2.prems")
-        from False have "y \<le> x" by simp
-        moreover from "local.2.hyps" "local.2.prems" False have "sorted (insert x ys)"  by simp
-        ultimately show "y \<le> x \<and> sorted (insert x ys)" by blast
+        show "y \<le> x \<and> sorted (insert x ys)"
+        proof(rule conjI)
+          show "y \<le> x" by (simp add: False leI)
+        next
+          have "sorted ys" using "local.2.prems" List.linorder_class.sorted.simps(2) by blast
+          then show "sorted (insert x ys)" by (simp add: "local.2.hyps" False)
+        qed
       qed
     qed
   qed
