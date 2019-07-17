@@ -36,22 +36,22 @@ qed
 
 value "merge ([1,2,3]) ([1,2,3,10])"
 
-lemma sorted_accepts_merge_left :"\<lbrakk>sorted (y#ys);sorted (x#xs);sorted (xs);sorted (merge (xs) (y#ys)); x \<le> y\<rbrakk> \<Longrightarrow> sorted(x#merge (xs) (y#ys))"
+lemma sorted4 :"\<lbrakk>sorted (y#ys);sorted (x#xs);sorted (merge (xs) (y#ys)); x \<le> y\<rbrakk> \<Longrightarrow> sorted(x#merge (xs) (y#ys))"
 proof(induction xs rule: sorted.induct)
   case 1
   then show ?case by auto
 next
   case (2 x ys)
-  then show ?case by fastforce
+  then show ?case by (metis merge.simps(3) sorted2)
 qed
 
-lemma sorted_accepts_merge_right :"\<lbrakk>sorted (y#ys);sorted (x#xs);sorted (ys);sorted (merge (x#xs) (ys)); \<not> x \<le> y\<rbrakk> \<Longrightarrow> sorted(y#merge (x#xs) (ys))"
-proof(induction ys rule: sorted.induct)
+lemma sorted5 :"\<lbrakk>sorted (y#ys);sorted (x#xs);sorted (merge (x#xs) (ys)); y \<le> x\<rbrakk> \<Longrightarrow> sorted (y#merge (x#xs) (ys))"
+proof(induction ys  rule: sorted.induct)
   case 1
-  then show ?case by auto
+  then show ?case  by auto
 next
   case (2 x ys)
-  then show ?case by fastforce
+  then show ?case by (metis merge.simps(3) sorted2)
 qed
 
 lemma merge_order: "\<lbrakk>sorted (xs);sorted(ys)\<rbrakk> \<Longrightarrow> sorted(merge xs ys)"
@@ -66,11 +66,19 @@ next
   then show "sorted (merge (x # xs) (y # ys))"
   proof(cases "x \<le> y")
     case True
-    then show "sorted (merge (x # xs) (y # ys))"  by (metis "3.hyps"(1) "3.prems"(1) "3.prems"(2) merge.simps(3) sorted.simps(2) sorted_accepts_merge_left)
+    then show "sorted (merge (x # xs) (y # ys))"  
+    proof (simp only: merge.simps True if_True)
+      have "sorted (merge xs (y # ys))" using "3.hyps"(1) "3.prems"(1) "3.prems"(2) True sorted.simps(2) by simp
+      then show "sorted (x # merge xs (y # ys))"  by (simp only: "3.prems"(1) "3.prems"(2) True sorted4)
+    qed
   next
     case False
-    thm "3.hyps"
-    then show "sorted (merge (x # xs) (y # ys))"  using "3.hyps"(2) "3.prems"(1) "3.prems"(2) merge.simps(3) sorted.simps(2) sorted_accepts_merge_right by (metis)
+    then show "sorted (merge (x # xs) (y # ys))"
+    proof (simp only: merge.simps False if_False)
+      have "sorted(merge (x # xs) ys)" using "3.hyps"(2) "3.prems"(1) "3.prems"(2) False sorted.simps(2) by simp
+      moreover have "y \<le> x" using False nat_le_linear by simp
+      ultimately show "sorted (y # merge (x # xs) ys)" by (simp only: "3.prems"(1) "3.prems"(2) False sorted5)
+    qed
   qed
 qed
 
