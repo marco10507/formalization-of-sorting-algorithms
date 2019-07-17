@@ -14,22 +14,22 @@ next
   fix xs ys::"nat list"
   fix x y :: nat
   assume a1: "x \<le> y"
-  show "((xs, y # ys), x # xs, y # ys) \<in> measure (\<lambda>(xs, ys). length xs + length ys)" 
+  show "((xs, y#ys), x#xs, y#ys) \<in> measure (\<lambda>(xs, ys). length xs + length ys)" 
   proof (simp only: in_measure)
-    show "(case (xs, y # ys) of (xs, ys) \<Rightarrow> length xs + length ys) < (case (x # xs, y # ys) of (xs, ys) \<Rightarrow> length xs + length ys)"
+    show "(case (xs, y#ys) of (xs, ys) \<Rightarrow> length xs + length ys) < (case (x#xs, y#ys) of (xs, ys) \<Rightarrow> length xs + length ys)"
     proof(simp only: prod.case)
-      show "length xs + length (y # ys) < length (x # xs) + length (y # ys)" by simp
+      show "length xs + length (y#ys) < length (x#xs) + length (y#ys)" by simp
     qed
   qed
 next
   fix xs ys::"nat list"
   fix x y :: nat
   assume a2: "\<not> x \<le> y "
-  show "((x # xs, ys), x # xs, y # ys) \<in> measure (\<lambda>(xs, ys). length xs + length ys)"
+  show "((x#xs, ys), x#xs, y#ys) \<in> measure (\<lambda>(xs, ys). length xs + length ys)"
   proof (simp only: in_measure)
-    show "(case (x # xs, ys) of (xs, ys) \<Rightarrow> length xs + length ys) < (case (x # xs, y # ys) of (xs, ys) \<Rightarrow> length xs + length ys)" 
+    show "(case (x# xs, ys) of (xs, ys) \<Rightarrow> length xs + length ys) < (case (x#xs, y#ys) of (xs, ys) \<Rightarrow> length xs + length ys)" 
     proof(simp only: prod.case)
-      show "length (x # xs) + length ys < length (x # xs) + length (y # ys)" by simp
+      show "length (x#xs) + length ys < length (x#xs) + length (y#ys)" by simp
     qed
   qed
 qed
