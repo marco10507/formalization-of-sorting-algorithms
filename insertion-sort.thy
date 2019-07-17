@@ -17,21 +17,21 @@ insert_sort_Cons: "insert_sort (x#xs)  = insert x (insert_sort(xs))"
 value "insert_sort [2,4,10,0,3]"
 
 lemma sorted3 : "\<lbrakk>sorted(y#ys); \<not> x < y\<rbrakk> \<Longrightarrow> sorted (y#insert x ys) = (y \<le> x \<and> sorted(insert x ys))"
-proof(induction ys arbitrary: y rule: sorted.induct)
+proof(induction ys  rule: sorted.induct)
   case 1
-  then show ?case by auto
+  then show "sorted (y # insert x []) = (y \<le> x \<and> sorted (insert x []))" by auto
 next
   case (2 x ys)
-  then show ?case using insert_Cons leI less_imp_le_nat sorted2 by metis
+  then show ?case by (simp del:List.linorder_class.sorted.simps add:sorted2_simps)
 qed
 
 lemma insert_order: "sorted(ys) \<Longrightarrow> sorted (insert y ys)"
-proof (induct ys rule: insert.induct)
+proof (induct ys  rule: insert.induct)
   case (1 x)
   then show "sorted (insert x [])" by simp
 next
   case (2 x y ys)
-  then show ?case
+  then show "sorted (insert x (y # ys))"
   proof (cases "x < y")
     case True
     then show "sorted (insert x (y#ys))"
@@ -56,7 +56,7 @@ next
     proof(simp only:False insert_Cons if_False)
       show "sorted (y # insert x ys)"
       proof(simp  del:List.linorder_class.sorted.simps add: False sorted3 "local.2.prems")
-        show "y \<le> x \<and> sorted (insert x ys)"
+        show "y \<le> x \<and> sorted (insert x ys)" 
         proof(rule conjI)
           show "y \<le> x" by (simp add: False leI)
         next
@@ -113,7 +113,6 @@ next
   also have "... =  mset (x # xs)" using "local.2.hyps" by simp
   finally show "mset (insert_sort (x # xs)) = mset (x # xs)" by this
 qed
-
 
 fun insert_sort_tail:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
 insert_sort_tail_Nil : "insert_sort_tail [] accum  = accum" |
