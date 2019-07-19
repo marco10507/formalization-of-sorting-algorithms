@@ -10,9 +10,9 @@ insert_Cons: "insert x (y#ys) = (if x < y then (x#y#ys) else y#insert x ys)"
 
 value "insert 1 [2,4,10]"
 
-fun insert_sort:: "nat list \<Rightarrow> nat list" where
-insert_sort_Nil : "insert_sort []  = []" |
-insert_sort_Cons: "insert_sort (x#xs)  = insert x (insert_sort(xs))"
+fun insertion_sort:: "nat list \<Rightarrow> nat list" where
+insertion_sort_Nil : "insertion_sort []  = []" |
+insertion_sort_Cons: "insertion_sort (x#xs)  = insert x (insertion_sort(xs))"
 
 value "insert_sort [2,4,10,0,3]"
 
@@ -68,15 +68,15 @@ next
   qed
 qed
 
-theorem insert_sort_order : "sorted(insert_sort(ys))"
-proof (induct ys rule:insert_sort.induct)
+theorem insertion_sort_order : "sorted(insertion_sort(ys))"
+proof (induct ys rule:insertion_sort.induct)
   case 1
-  then show "sorted (insert_sort [])" by simp
+  then show "sorted (insertion_sort [])" by simp
 next
   case (2 x xs)
-  show "sorted (insert_sort (x # xs))"
-  proof (simp only: insert_sort_Cons)
-    show "sorted (insert x (insert_sort xs))" by (simp only: "local.2.hyps" insert_order)
+  show "sorted (insertion_sort (x # xs))"
+  proof (simp only: insertion_sort_Cons)
+    show "sorted (insert x (insertion_sort xs))" by (simp only: "local.2.hyps" insert_order)
   qed
 qed
 
@@ -100,39 +100,39 @@ next
   qed
 qed
 
-theorem insert_sort_permutation: "mset (insert_sort ys) = mset ys"
-proof(induct ys rule: insert_sort.induct)
+theorem insert_sort_permutation: "mset (insertion_sort ys) = mset ys"
+proof(induct ys rule: insertion_sort.induct)
   case 1
-  then show "mset (insert_sort []) = mset []" by simp
+  then show "mset (insertion_sort []) = mset []" by simp
 next
   case (2 x xs)
-  have "mset (insert_sort (x # xs)) = mset (insert x (insert_sort(xs)))" by simp
-  also have "... =  mset(x#(insert_sort(xs)))" using  insert_permutation by simp
-  also have "... =  {#x#} + mset(insert_sort(xs))" by simp
+  have "mset (insertion_sort (x # xs)) = mset (insert x (insertion_sort(xs)))" by simp
+  also have "... =  mset(x#(insertion_sort(xs)))" using  insert_permutation by simp
+  also have "... =  {#x#} + mset(insertion_sort(xs))" by simp
   also have "... =  {#x#} +  mset xs" using "local.2.hyps" by simp
   also have "... =  mset (x # xs)" using "local.2.hyps" by simp
-  finally show "mset (insert_sort (x # xs)) = mset (x # xs)" by this
+  finally show "mset (insertion_sort (x # xs)) = mset (x # xs)" by this
 qed
 
-fun insert_sort_tail:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
-insert_sort_tail_Nil : "insert_sort_tail [] accum  = accum" |
-insert_sort_tail_Cons: "insert_sort_tail (x#xs) accum  = insert_sort_tail (xs) (insert x accum)"
+fun insertion_sort_tail:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
+insertion_sort_tail_Nil : "insertion_sort_tail [] accum  = accum" |
+insertion_sort_tail_Cons: "insertion_sort_tail (x#xs) accum  = insertion_sort_tail (xs) (insert x accum)"
 
 value "insert_sort_tail ([2,4,10]) ([])"
 
-theorem insert_sort_tail_order: "sorted(ACCUM) \<Longrightarrow> sorted(insert_sort_tail xs ACCUM)"
+theorem insert_sort_tail_order: "sorted(ACCUM) \<Longrightarrow> sorted(insertion_sort_tail xs ACCUM)"
 proof(induct xs arbitrary:ACCUM)
   case Nil
-  then show "sorted (insert_sort_tail [] ACCUM)" by simp
+  then show "sorted (insertion_sort_tail [] ACCUM)" by simp
 next
   case (Cons a xs)
-  then show "sorted (insert_sort_tail (a # xs) ACCUM)" by (simp add: insert_order)
+  then show "sorted (insertion_sort_tail (a # xs) ACCUM)" by (simp add: insert_order)
 qed
 
-theorem insert_sort_tail_permutation: "mset (insert_sort_tail xs ACCUM) = mset (xs@ACCUM)"
+theorem insertion_sort_tail_permutation: "mset (insertion_sort_tail xs ACCUM) = mset (xs@ACCUM)"
 proof(induct xs arbitrary:ACCUM)
   case Nil
-  then show "mset (insert_sort_tail [] ACCUM) = mset ([] @ ACCUM)" by simp
+  then show "mset (insertion_sort_tail [] ACCUM) = mset ([] @ ACCUM)" by simp
 next
   case (Cons a xs)
   then show ?case by (simp add: insert_permutation)
