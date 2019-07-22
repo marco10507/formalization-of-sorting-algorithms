@@ -2,6 +2,10 @@ theory "merge-sort"
   imports Main "HOL-Library.Multiset"
 begin
 
+declare[[names_short]]
+
+text \<open>tail recursive\<close>
+
 function merge:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where 
 "merge xs [] = xs" |
 "merge [] ys = ys" |
