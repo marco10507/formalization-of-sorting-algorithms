@@ -4,7 +4,7 @@ begin
 
 declare[[names_short]]
 
-(*non-tail recursive*)
+text \<open>non-tail recursive\<close>
 
 primrec insert:: "nat \<Rightarrow> nat list \<Rightarrow> nat list" where
 insert_Nil: "insert x [] = [x]" |
@@ -116,7 +116,7 @@ next
   finally show "mset (insertion_sort (x # xs)) = mset (x # xs)" by this
 qed
 
-(*tail recursive*)
+text \<open>tail recursive\<close>
 
 fun insertion_sort_tail:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
 insertion_sort_tail_Nil : "insertion_sort_tail [] accum  = accum" |
