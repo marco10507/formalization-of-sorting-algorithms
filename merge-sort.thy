@@ -113,20 +113,14 @@ next
   qed
 qed
 
-
 value "merge [1,2,3] [1,4,5,6]"
 
 fun merge_sort:: "nat list \<Rightarrow> nat list" where
 "merge_sort [] = []" |
 "merge_sort [x] = [x]" |
-"merge_sort (xs) = ( let  half = ((length xs) div 2); left = take half xs; right = drop half xs in  merge (merge_sort (left)) (merge_sort (right)))"
+"merge_sort (x#xs) = ( let  half = ((length (x#xs)) div 2); left = take half (x#xs); right = drop half (x#xs) in  merge (merge_sort (left)) (merge_sort (right)))"
 
 value "msort [9,8,7,6,5,4]"
-
-value " (2::nat) div (2::nat)"
-
-thm merge.induct
-thm merge_sort.induct
 
 theorem merge_sort_order: "sorted(merge_sort xs)"
 proof(induct xs rule:merge_sort.induct)
