@@ -4,6 +4,8 @@ begin
 
 declare[[names_short]]
 
+(*non-tail recursive*)
+
 primrec insert:: "nat \<Rightarrow> nat list \<Rightarrow> nat list" where
 insert_Nil: "insert x [] = [x]" |
 insert_Cons: "insert x (y#ys) = (if x < y then (x#y#ys) else y#insert x ys)"
@@ -113,6 +115,8 @@ next
   also have "... =  mset (x # xs)" using "local.Cons.hyps" by simp
   finally show "mset (insertion_sort (x # xs)) = mset (x # xs)" by this
 qed
+
+(*tail recursive*)
 
 fun insertion_sort_tail:: "nat list \<Rightarrow> nat list \<Rightarrow> nat list" where
 insertion_sort_tail_Nil : "insertion_sort_tail [] accum  = accum" |
