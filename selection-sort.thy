@@ -2,6 +2,8 @@ theory "selection-sort"
   imports Main "HOL-Library.Multiset"
 begin
 
+text \<open>no tail-recursive\<close>
+
 lemma remove_member: "y \<in> set (x#xs) \<Longrightarrow> length (remove1 y (x#xs)) < length (x#xs)"
 proof(induct xs arbitrary: y x)
   case Nil
@@ -9,7 +11,6 @@ proof(induct xs arbitrary: y x)
   also have "length (remove1 x [x]) = length []" by simp
   also have "length [] < length [x]" by simp
   finally show "length (remove1 y [x]) < length [x]" by this
-next
 next
   case (Cons a xs)
   then show "length (remove1 y (x # a # xs)) < length (x # a # xs)"
@@ -28,8 +29,7 @@ next
     finally show "length (remove1 y (x # a # xs)) < length (x # a # xs)" by this
   qed
 qed
-                                                                                                        
-(*no tail-recursive*)
+
 function selection_sort:: "nat list \<Rightarrow> nat list" where
 selection_sort_Null:  "selection_sort [] = []" |
 selection_sort_Cons: "selection_sort (x#xs) = (let minimum = Min (set(x#xs)); rest = remove1 minimum (x#xs) in minimum#selection_sort(rest))"
@@ -64,11 +64,11 @@ next
   proof(cases "?minimum = x")
     case True
     have "mset (selection_sort (x # xs)) = mset(?minimum#selection_sort(?rest))" using True by simp
-    also have "... = {#?minimum#}  + mset(selection_sort(?rest))" by simp
-    also have "... = {#?minimum#}  + mset(?rest)" using IH by simp
-    also have "... = {#?minimum#}  + mset(remove1 x (x # xs))" using True by simp
-    also have "... = {#?minimum#}  + mset(xs)" by simp
-    also have "... = {#x#}  + mset(xs)" using True by simp
+    also have "... = {#?minimum#} + mset(selection_sort(?rest))" by simp
+    also have "... = {#?minimum#} + mset(?rest)" using IH by simp
+    also have "... = {#?minimum#} + mset(remove1 x (x # xs))" using True by simp
+    also have "... = {#?minimum#} + mset(xs)" by simp
+    also have "... = {#x#} + mset(xs)" using True by simp
     also have "... = mset (x#xs)" by simp
     finally show "mset (selection_sort (x # xs)) = mset (x # xs)" by this
   next
@@ -111,8 +111,7 @@ next
   qed
 qed
 
-
-(*tail-recursive version*)
+text \<open>tail-recursive\<close>
 
 lemma max_membership: "m = Max(set (x#xs)) \<Longrightarrow> m \<in> set (x#xs)"
 proof(induct xs arbitrary: x m)
@@ -168,5 +167,4 @@ next
   case (Cons a xs)
   show "mset (tr_selection_sort (a # xs) ACCUM) = mset (a # xs) + mset ACCUM"  using Cons.prems(2) by blast
 qed
-
 
